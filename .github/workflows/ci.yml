@@ -15,7 +15,12 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - run: npm install
+      # The workspace lockfile is written by npm 11; Node 22 bundles npm 10,
+      # whose resolution rejects it. Install the lockfile's npm first.
+      - name: Use the lockfile's npm
+        run: npm install -g npm@11.17.0
+      - name: Install workspace (root install links @flowink/* packages)
+        run: npm install
       - name: Build (core, react, cli)
         run: npm run build
       - name: Test (core, react)
@@ -35,7 +40,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: npm install
+      - name: Use the lockfile's npm
+        run: npm install -g npm@11.17.0
+      - name: Install from repo root (workspace linking for @flowink/angular)
+        run: npm install
+        working-directory: .
       - name: Demo app compiles with the component
         run: npx ng build
 
