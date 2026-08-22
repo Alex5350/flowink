@@ -1,0 +1,17 @@
+{
+  "name": "@flowink/core",
+  "version": "0.1.0",
+  "description": "Generate animated architecture-flow SVGs from a JSON spec — CSS-only animation, safe for GitHub README <img> embedding.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2",
+    "vitest": "^4.1.11"
+  }
+}

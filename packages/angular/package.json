@@ -1,0 +1,13 @@
+{
+  "name": "@flowink/angular",
+  "version": "0.1.0",
+  "description": "Angular standalone component rendering FlowInk animated flow diagrams.",
+  "type": "module",
+  "peerDependencies": {
+    "@angular/core": ">=16",
+    "@angular/platform-browser": ">=16"
+  },
+  "dependencies": {
+    "@flowink/core": "0.1.0"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "flowink-cli",
+  "version": "0.1.0",
+  "description": "CLI rendering FlowInk animated flow diagrams from JSON specs to SVG files \u2014 built for committing architecture diagrams to READMEs.",
+  "type": "module",
+  "bin": {
+    "flowink": "./dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@flowink/core": "0.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.2.0",
+    "typescript": "^5.9.2"
+  }
+}

@@ -8,3 +8,11 @@ obj/
 
 # Angular compiler cache
 .angular/
+
+# The machine global gitignore excludes **/packages/*; this repo lives in packages/ — re-include forcefully.
+!packages/
+!packages/**
+packages/*/dist/
+
+packages/*/node_modules/
+.vite/
