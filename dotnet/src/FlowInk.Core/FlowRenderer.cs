@@ -171,8 +171,8 @@ public static class FlowRenderer
     private static string RenderNode(FlowNode node, Box box, Theme t)
     {
         var parts = new List<string>();
-        var pulseClass = node.Pulse.HasValue ? " flowink-pulse" : "";
-        var duration = node.PulseDurationMs() is { } ms ? $" style=\"animation-duration: {ms}ms\"" : "";
+        var pulseClass = node.Pulse is { Enabled: true } ? " flowink-pulse" : "";
+        var duration = node.Pulse is { Enabled: true, DurationMs: not 3000 } p ? $" style=\"animation-duration: {p.DurationMs}ms\"" : "";
         parts.Add($"""  <rect class="flowink-node{pulseClass}" x="{box.X}" y="{box.Y}" width="{box.Width}" height="{box.Height}" rx="10"{duration}/>""");
         parts.Add($"""  <text x="{box.X + 20}" y="{box.Y + 26}" style="font: 600 13px ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .5px" fill="{t.NodeText}">{Escape(node.Label)}</text>""");
         var index = 0;

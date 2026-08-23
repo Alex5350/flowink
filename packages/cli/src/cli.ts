@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 import { readFileSync, writeFileSync } from 'node:fs';
 import { renderFlow } from '@flowink/core/dist/index.js';
 import type { FlowSpec } from '@flowink/core/dist/index.js';

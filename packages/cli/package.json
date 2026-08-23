@@ -10,13 +10,11 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.json"
-  },
-  "dependencies": {
-    "@flowink/core": "0.1.0"
+    "build": "tsc -p tsconfig.json && node bundle.mjs && mv dist/cli.bundle.js dist/cli.js && chmod +x dist/cli.js"
   },
   "devDependencies": {
     "@types/node": "^26.2.0",
+    "esbuild": "^0.28.1",
     "typescript": "^5.9.2"
   }
 }

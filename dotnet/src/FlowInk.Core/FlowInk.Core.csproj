@@ -2,6 +2,6 @@
   <PropertyGroup>
     <Description>C# renderer for FlowInk animated flow diagrams — spec to CSS-only SVG, parity-tested against the TypeScript core.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Version>0.1.0</Version>
+    <Version>0.1.1</Version>
   </PropertyGroup>
 </Project>

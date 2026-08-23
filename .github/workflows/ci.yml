@@ -21,8 +21,19 @@ jobs:
         run: npm install -g npm@11.17.0
       - name: Install workspace (root install links @flowink/* packages)
         run: npm install
-      - name: Build (core, react, cli)
-        run: npm run build
+      - name: Build (core, react, angular, cli)
+        run: |
+          npm run build
+          npm run build -w @flowink/angular
+      - name: Angular package packs (compiled entry points)
+        run: npm pack -w @flowink/angular --pack-destination /tmp
+      - name: CLI installs standalone with zero deps
+        run: |
+          npm pack -w flowink-cli --pack-destination /tmp
+          npm install -g /tmp/flowink-cli-0.1.0.tgz
+          flowink render docs/diagrams/architecture.json -o /tmp/ci-cli.svg
+          test "$(grep -c '<animate' /tmp/ci-cli.svg)" -eq 0
+          npm uninstall -g flowink-cli
       - name: Test (core, react)
         run: npm test
       - name: Dogfood render must stay SMIL-free

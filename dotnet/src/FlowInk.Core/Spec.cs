@@ -25,17 +25,7 @@ public sealed class FlowNode
     [JsonPropertyName("y")] public int Y { get; set; }
     [JsonPropertyName("width")] public int? Width { get; set; }
     [JsonPropertyName("height")] public int? Height { get; set; }
-    [JsonPropertyName("pulse")] public JsonElement? Pulse { get; set; }
-
-    public bool PulseIsBool(out bool value)
-    {
-        value = false;
-        return Pulse is { ValueKind: JsonValueKind.True or JsonValueKind.False } &&
-               (value = Pulse.Value.GetBoolean());
-    }
-
-    public int? PulseDurationMs() =>
-        Pulse is { ValueKind: JsonValueKind.Number } ? (int)Pulse.Value.GetDouble() : null;
+    [JsonPropertyName("pulse")] public Pulse? Pulse { get; set; }
 }
 
 public sealed class FlowEdge

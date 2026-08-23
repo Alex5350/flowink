@@ -13,10 +13,8 @@
     "test": "vitest run"
   },
   "peerDependencies": {
+    "@flowink/core": "0.1.0",
     "react": ">=18"
-  },
-  "dependencies": {
-    "@flowink/core": "0.1.0"
   },
   "devDependencies": {
     "@types/react": "^19",
@@ -24,6 +22,7 @@
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "typescript": "^5.9.2",
-    "vitest": "^4.1.11"
+    "vitest": "^4.1.11",
+    "@flowink/core": "0.1.0"
   }
 }

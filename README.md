@@ -47,7 +47,7 @@ All packages live in this repository (not yet published to registries - see
 |---|---|---|
 | [`@flowink/core`](packages/core) | TypeScript | `renderFlow(spec)` - the renderer + types, zero dependencies |
 | [`@flowink/react`](packages/react) | React / Next.js | `<FlowDiagram spec={...} />` - pure function of props, RSC/SSR-safe |
-| [`@flowink/angular`](packages/angular) | Angular | `<flowink-diagram [spec]="spec" />` - standalone, OnPush |
+| [`@flowink/angular`](packages/angular) | Angular | `<flowink-diagram [spec]="spec" />` - ng-packagr compiled (FESM + types), standalone, OnPush |
 | [`FlowInk.Core`](dotnet/src/FlowInk.Core) | .NET | C# renderer with JSON spec parsing, parity-tested |
 | [`FlowInk.Blazor`](dotnet/src/FlowInk.Blazor) | Blazor | `<FlowDiagram Spec="..." />` - static SSR, no JS interop |
 | [`flowink`](packages/cli) | CLI | `flowink render spec.json -o diagram.svg` - the README workflow |
@@ -110,9 +110,10 @@ npm run build          # @flowink/core, @flowink/react, flowink CLI
 npm test               # TypeScript tests (core + react)
 ```
 
-Until the packages are published, consume them the way the demo app does -
-**npm workspaces + tsconfig path mappings** (see
-[`apps/demo-angular`](apps/demo-angular/tsconfig.json) for the complete working setup):
+Until the packages are published, consume them one of two proven ways:
+
+**In-app (workspace wiring)** - npm workspaces + tsconfig path mappings, the way the
+demo app does (see [`apps/demo-angular`](apps/demo-angular/tsconfig.json)):
 
 ```jsonc
 // your app's tsconfig.json
@@ -124,6 +125,21 @@ Until the packages are published, consume them the way the demo app does -
     }
   }
 }
+```
+
+**From packed tarballs** - the closest thing to `npm install` before publishing, and
+how the library was validated against real consumers
+([findings](docs/findings-first-consumer-validation.md)):
+
+```bash
+cd packages/core && npm pack --pack-destination /tmp/packs
+cd ../react && npm pack --pack-destination /tmp/packs
+cd ../angular && npm run build && npm pack --pack-destination /tmp/packs   # ng-packagr first
+cd ../cli && npm run build && npm pack --pack-destination /tmp/packs       # self-contained bundle
+
+# in the consuming app (install together while unpublished - core is a peer dep):
+npm install /tmp/packs/flowink-core-0.1.0.tgz /tmp/packs/flowink-react-0.1.0.tgz
+npm install -g /tmp/packs/flowink-cli-0.1.0.tgz   # CLI needs nothing else
 ```
 
 ### CLI - the README workflow
@@ -221,6 +237,11 @@ taught alongside the mistake that taught it.
 - [ADR 0002](docs/adr/0002-spec-parity.md) - one JSON spec, two renderers, enforced parity
 - [ADR 0003](docs/adr/0003-manual-layout.md) - manual node placement; no auto-layout in v1
 - [ADR 0004](docs/adr/0004-injection-trust-boundary.md) - the injection trust boundary
+
+**Validated, not just built**: three fresh sample apps (Next.js RSC, Angular, Blazor
+static SSR) and a global CLI install consumed the packed artifacts; every failure they
+found and the fix that followed is recorded in
+[docs/findings-first-consumer-validation.md](docs/findings-first-consumer-validation.md).
 
 ## License
 

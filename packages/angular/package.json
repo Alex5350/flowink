@@ -5,9 +5,24 @@
   "type": "module",
   "peerDependencies": {
     "@angular/core": ">=16",
-    "@angular/platform-browser": ">=16"
-  },
-  "dependencies": {
+    "@angular/platform-browser": ">=16",
     "@flowink/core": "0.1.0"
+  },
+  "scripts": {
+    "build": "ng-packagr -p ng-package.json -c tsconfig.ngc.json"
+  },
+  "module": "./dist/fesm2022/flowink-angular.mjs",
+  "types": "./dist/types/flowink-angular.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/flowink-angular.d.ts",
+      "default": "./dist/fesm2022/flowink-angular.mjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "devDependencies": {
+    "ng-packagr": "^21.0.0"
   }
 }
