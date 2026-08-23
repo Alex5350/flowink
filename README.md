@@ -100,6 +100,11 @@ Working example: [`docs/diagrams/architecture.json`](docs/diagrams/architecture.
 
 ## Setup and usage
 
+**Step-by-step runbooks for every consumer** - Next.js (RSC), Angular, CLI, and
+Blazor - live in **[docs/quickstarts.md](docs/quickstarts.md)**: numbered steps from
+packing artifacts through a verification check, each the exact recipe the sample
+apps validated. The sections below are the condensed reference.
+
 ### From the repository (packages are not on npm yet)
 
 ```bash
