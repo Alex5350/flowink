@@ -240,8 +240,18 @@ detection and fixes.
 canvas anatomy, the dot pattern, content-sized nodes, the dash-math that makes flows
 seamless, bidirectional flow, pulses, CSS Motion Path packets, the accessibility
 close-out, the SMIL trap (with its detection protocol), and the boring delivery
-failures - cache keys, references that silently failed to insert. Every rule is
+failures: cache keys, references that silently failed to insert. Every rule is
 taught alongside the mistake that taught it.
+
+## Publishing
+
+The library is publication-ready: names verified available on npm and NuGet,
+`prepublishOnly` gates run build + tests per package, tarball contents audited
+(dist only - test files excluded from builds), and a tag-triggered CI workflow
+publishes in dependency order with npm provenance. The complete runbook - account
+setup, versioning policy, automated and manual procedures, other-channel analysis
+(GitHub Packages, CDN, jsr), and incident handling - lives in
+**[docs/publishing.md](docs/publishing.md)**.
 
 ## Decisions
 

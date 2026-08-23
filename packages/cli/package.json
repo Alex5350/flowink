@@ -10,7 +10,9 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.json && node bundle.mjs && mv dist/cli.bundle.js dist/cli.js && chmod +x dist/cli.js"
+    "build": "tsc -p tsconfig.json && node bundle.mjs && mv dist/cli.bundle.js dist/cli.js && chmod +x dist/cli.js",
+    "prepublishOnly": "npm run build",
+    "prepack": "npm run build"
   },
   "devDependencies": {
     "@types/node": "^26.2.0",
@@ -24,5 +26,6 @@
   "license": "MIT",
   "engines": {
     "node": ">=18"
-  }
+  },
+  "preferGlobal": false
 }

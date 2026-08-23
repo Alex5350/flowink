@@ -9,7 +9,9 @@
     "@flowink/core": "0.1.2"
   },
   "scripts": {
-    "build": "ng-packagr -p ng-package.json -c tsconfig.ngc.json"
+    "build": "ng-packagr -p ng-package.json -c tsconfig.ngc.json",
+    "prepublishOnly": "npm run build",
+    "prepack": "npm run build"
   },
   "module": "./dist/fesm2022/flowink-angular.mjs",
   "types": "./dist/types/flowink-angular.d.ts",

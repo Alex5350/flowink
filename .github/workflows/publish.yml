@@ -1,0 +1,66 @@
+name: Publish
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+  id-token: write   # npm provenance (OIDC)
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm install -g npm@11.17.0
+      - run: npm install
+      - run: npm run build
+      - run: npm test
+      - uses: actions/setup-dotnet@v4
+        with: { dotnet-version: 10.0.x }
+      - run: dotnet build dotnet/FlowInk.slnx
+      - run: dotnet run --project dotnet/tests/FlowInk.Tests
+
+  npm:
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm install -g npm@11.17.0
+      - run: npm install
+      # Publish order matters: core satisfies the peers declared by react/angular.
+      - name: Publish @flowink/core
+        run: npm publish -w @flowink/core --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Publish @flowink/react
+        run: npm publish -w @flowink/react --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Publish @flowink/angular
+        run: npm publish -w @flowink/angular --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Publish flowink-cli (self-contained)
+        run: npm publish -w flowink-cli --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  nuget:
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with: { dotnet-version: 10.0.x }
+      - run: dotnet pack dotnet/src/FlowInk.Core/FlowInk.Core.csproj -c Release -o dist
+      - run: dotnet pack dotnet/src/FlowInk.Blazor/FlowInk.Blazor.csproj -c Release -o dist
+      - name: Push to nuget.org (explicit source — never a machine-configured private feed)
+        run: |
+          dotnet nuget push dist/FlowInk.Core.*.nupkg --source https://api.nuget.org/v3/index.json --api-key "${{ secrets.NUGET_API_KEY }}" --skip-duplicate
+          dotnet nuget push dist/FlowInk.Blazor.*.nupkg --source https://api.nuget.org/v3/index.json --api-key "${{ secrets.NUGET_API_KEY }}" --skip-duplicate
