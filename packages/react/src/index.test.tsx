@@ -24,6 +24,6 @@ describe('FlowDiagram (React)', () => {
   it('exposes the raw string renderer for build-time use', () => {
     const svg = renderFlowToString(spec);
     expect(svg.startsWith('<svg')).toBe(true);
-    expect(svg).toContain('flowink-flow-sky');
+    expect(svg).toContain('fi-dark-flow-sky');
   });
 });
