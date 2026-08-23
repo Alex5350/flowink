@@ -163,7 +163,7 @@ public static class FlowRenderer
         if (edge.Label is not null)
         {
             var mid = PathMidpoint(path);
-            parts.Add($"""  <text x="{(int)Math.Round(mid.X)}" y="{(int)Math.Round(mid.Y) - 8}" text-anchor="middle" style="font: 10px ui-monospace, SFMono-Regular, Menlo, monospace" fill="{t.Flow(color)}">{Escape(edge.Label)}</text>""");
+            parts.Add($"""  <text x="{(int)Math.Round(mid.X, MidpointRounding.AwayFromZero)}" y="{(int)Math.Round(mid.Y, MidpointRounding.AwayFromZero) - 8}" text-anchor="middle" style="font: 10px ui-monospace, SFMono-Regular, Menlo, monospace" fill="{t.Flow(color)}">{Escape(edge.Label)}</text>""");
         }
 
         if (edge.Packet && direction != "none")

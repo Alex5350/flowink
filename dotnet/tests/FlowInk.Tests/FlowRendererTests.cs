@@ -14,7 +14,7 @@ public partial class FlowRendererTests
     {
         var svg = FlowRenderer.Render(FlowRenderer.ParseSpecJson(SpecJson));
         Assert.StartsWith("<svg xmlns=\"http://www.w3.org/2000/svg\"", svg);
-        Assert.Contains("<title>FlowInk dogfood", svg);
+        Assert.Contains("<title>FlowInk - one spec", svg);
         Assert.Contains("role=\"img\"", svg);
         Assert.EndsWith("</svg>\n", svg.TrimEnd() + "\n");
     }
