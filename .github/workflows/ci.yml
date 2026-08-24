@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  typescript:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm install
+      - name: Build (core, react, cli)
+        run: npm run build
+      - name: Test (core, react)
+        run: npm test
+      - name: Dogfood render must stay SMIL-free
+        run: |
+          node packages/cli/dist/cli.js render docs/diagrams/architecture.json -o /tmp/ci-arch.svg
+          test "$(grep -c '<animate' /tmp/ci-arch.svg)" -eq 0
+
+  angular-demo:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/demo-angular
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - name: Demo app compiles with the component
+        run: npx ng build
+
+  dotnet:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - run: dotnet build dotnet/FlowInk.slnx
+      - name: Parity + guarantees
+        run: dotnet run --project dotnet/tests/FlowInk.Tests
