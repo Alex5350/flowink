@@ -30,7 +30,7 @@ jobs:
       - name: CLI installs standalone with zero deps
         run: |
           npm pack -w flowink-cli --pack-destination /tmp
-          npm install -g /tmp/flowink-cli-0.1.0.tgz
+          npm install -g /tmp/flowink-cli-0.1.2.tgz
           flowink render docs/diagrams/architecture.json -o /tmp/ci-cli.svg
           test "$(grep -c '<animate' /tmp/ci-cli.svg)" -eq 0
           npm uninstall -g flowink-cli
