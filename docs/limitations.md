@@ -42,6 +42,24 @@ new author. Each entry includes the workaround where one exists.
   CSS has no sovereignty mechanism against that; treat it as a bug report against
   the host page.
 
+## Resource bounds
+
+Specs are validated against deliberate ceilings: **500 nodes, 1,000 edges, 12 detail
+lines per node, 10,000 characters per text or path field**. Generous for
+architecture diagrams; small enough that a flooded spec (accidental or hostile)
+fails with a clear error instead of producing a multi-megabyte SVG. Servers
+rendering user-supplied specs get DoS protection for free.
+
+## Strict CSP environments
+
+Under a `Content-Security-Policy` whose `style-src` omits `'unsafe-inline'`,
+browsers block the inline style attributes that carry FlowInk's host-CSS
+isolation. The renderer emits **presentation attributes as a fallback layer** on
+every path: colors remain correct via attributes (which CSP does not restrict),
+while the anti-hijack and animation layers are disabled. In practice: strict-CSP
+apps get correct static diagrams; everything else gets the full hardened,
+animated experience.
+
 ## Tooling and publishing
 
 - **Packages are not on registries yet.** Consume via workspace wiring or packed

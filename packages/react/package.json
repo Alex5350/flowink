@@ -1,6 +1,6 @@
 {
   "name": "@flowink/react",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "React component rendering FlowInk animated flow diagrams (SSR-safe).",
   "type": "module",
   "main": "./dist/index.js",
@@ -13,7 +13,7 @@
     "test": "vitest run"
   },
   "peerDependencies": {
-    "@flowink/core": "0.1.0",
+    "@flowink/core": "0.1.2",
     "react": ">=18"
   },
   "devDependencies": {
@@ -24,5 +24,13 @@
     "typescript": "^5.9.2",
     "vitest": "^4.1.11",
     "@flowink/core": "0.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Alex5350/flowink.git"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
   }
 }

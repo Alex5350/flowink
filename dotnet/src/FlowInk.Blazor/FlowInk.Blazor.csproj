@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
   <PropertyGroup>
     <Description>Blazor component rendering FlowInk animated flow diagrams.</Description>
-    <Version>0.1.1</Version>
+    <Version>0.1.2</Version>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../FlowInk.Core/FlowInk.Core.csproj" />

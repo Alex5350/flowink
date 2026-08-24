@@ -1,6 +1,6 @@
 {
   "name": "flowink-cli",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "CLI rendering FlowInk animated flow diagrams from JSON specs to SVG files \u2014 built for committing architecture diagrams to READMEs.",
   "type": "module",
   "bin": {
@@ -16,5 +16,13 @@
     "@types/node": "^26.2.0",
     "esbuild": "^0.28.1",
     "typescript": "^5.9.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Alex5350/flowink.git"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
   }
 }

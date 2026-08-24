@@ -58,7 +58,47 @@ export function renderFlow(spec: FlowSpec): string {
   return parts.join('\n');
 }
 
+/** Resource bounds: a server rendering API-supplied specs must not be
+ *  memory-DoSable into multi-megabyte DOM injections. Deliberately generous
+ *  for architecture diagrams, small enough to fail fast under flood. */
+const MAX_NODES = 500;
+const MAX_EDGES = 1000;
+const MAX_LINES_PER_NODE = 12;
+const MAX_FIELD_LENGTH = 10_000;
+
 function validateSpec(spec: FlowSpec): void {
+  if (!Array.isArray(spec.nodes) || !Array.isArray(spec.edges)) {
+    throw new Error('Spec must provide nodes and edges arrays.');
+  }
+  if (spec.nodes.length > MAX_NODES) {
+    throw new Error(`Spec has ${spec.nodes.length} nodes; the limit is ${MAX_NODES}.`);
+  }
+  if (spec.edges.length > MAX_EDGES) {
+    throw new Error(`Spec has ${spec.edges.length} edges; the limit is ${MAX_EDGES}.`);
+  }
+  for (const field of [spec.title, spec.subtitle, spec.chip]) {
+    if (field !== undefined && field.length > MAX_FIELD_LENGTH) {
+      throw new Error(`Spec text fields are limited to ${MAX_FIELD_LENGTH} characters.`);
+    }
+  }
+  for (const node of spec.nodes) {
+    if ((node.lines?.length ?? 0) > MAX_LINES_PER_NODE) {
+      throw new Error(`Node "${node.id}" has too many detail lines; the limit is ${MAX_LINES_PER_NODE}.`);
+    }
+    for (const text of [node.label, ...(node.lines ?? [])]) {
+      if (text.length > MAX_FIELD_LENGTH) {
+        throw new Error(`Node "${node.id}" text exceeds ${MAX_FIELD_LENGTH} characters.`);
+      }
+    }
+    if (typeof node.id !== 'string' || node.id.length > 200) {
+      throw new Error('Node ids are required, limited to 200 characters.');
+    }
+  }
+  for (const edge of spec.edges) {
+    if ((edge.label?.length ?? 0) > MAX_FIELD_LENGTH || (edge.path?.length ?? 0) > MAX_FIELD_LENGTH) {
+      throw new Error('Edge text and path data are limited to 10,000 characters.');
+    }
+  }
   const ids = new Set(spec.nodes.map((node) => node.id));
   if (ids.size !== spec.nodes.length) {
     throw new Error('Duplicate node ids in spec.');
@@ -148,10 +188,10 @@ function renderEdge(edge: FlowEdge, boxes: Map<string, Box>, theme: Theme, scope
   const parts: string[] = [];
 
   // Base edge first (visible even with animation frozen).
-  parts.push(`  <path class="fi-${scope}-edge" d="${path}" style="stroke: ${theme.edge} !important; fill: none !important; stroke-width: 1.5 !important"/>`);
+  parts.push(`  <path class="fi-${scope}-edge" d="${path}" fill="none" stroke="${theme.edge}" stroke-width="1.5" style="stroke: ${theme.edge} !important; fill: none !important; stroke-width: 1.5 !important"/>`);
   if (direction !== 'none') {
     const backward = direction === 'backward' ? ` fi-${scope}-flow-sky-b fi-${scope}-flow-emerald-b fi-${scope}-flow-amber-b fi-${scope}-flow-rose-b` : '';
-    parts.push(`  <path class="fi-${scope}-flow-${color}${backward}" d="${path}" style="stroke: ${theme.flows[color]} !important; fill: none !important; stroke-width: 2 !important; stroke-dasharray: 5 11 !important"/>`);
+    parts.push(`  <path class="fi-${scope}-flow-${color}${backward}" d="${path}" fill="none" stroke="${theme.flows[color]}" stroke-width="2" style="stroke: ${theme.flows[color]} !important; fill: none !important; stroke-width: 2 !important; stroke-dasharray: 5 11 !important"/>`);
   }
 
   if (edge.label) {

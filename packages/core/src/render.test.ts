@@ -150,3 +150,61 @@ describe('malicious-spec resistance (the injection boundary)', () => {
 
 
 });
+
+describe('resource bounds and fuzz', () => {
+  it('rejects node floods before rendering (server-side DoS guard)', () => {
+    const nodes = Array.from({ length: 501 }, (_, i) => ({ id: `n${i}`, label: 'N', x: i, y: 0 }));
+    expect(() => renderFlow({ title: 'flood', nodes, edges: [] })).toThrow(/limit is 500/);
+  });
+
+  it('rejects edge floods and runaway line counts with clear errors', () => {
+    const nodes = [{ id: 'a', label: 'A', x: 0, y: 0 }];
+    const edges = Array.from({ length: 1001 }, (_, i) => ({ from: 'a', to: 'a', key: i }));
+    expect(() => renderFlow({ title: 'x', nodes, edges })).toThrow(/limit is 1000/);
+    expect(() =>
+      renderFlow({ title: 'x', nodes: [{ id: 'a', label: 'A', lines: Array.from({ length: 13 }, () => 'x'), x: 0, y: 0 }], edges: [] }),
+    ).toThrow(/detail lines/);
+  });
+
+  it('fails clearly on malformed specs (missing arrays) instead of TypeErrors', () => {
+    expect(() => renderFlow({ title: 'x' } as never)).toThrow(/nodes and edges arrays/);
+  });
+
+  // Deterministic fuzz: seeded PRNG, no dependencies — 300 randomized specs with
+  // hostile payloads in every field must never produce script markup.
+  it('fuzz: 300 randomized hostile specs yield no script markup', () => {
+    let seed = 0x2f6e2b1;
+    const rand = () => {
+      seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+      return seed / 0x7fffffff;
+    };
+    const payloads = [
+      '"><script>alert(1)</script>',
+      "'/><rect onload=alert(2)/>",
+      '</text><foreignObject><body xmlns=...',
+      'M0,0"/><circle onbegin=alert(3)>',
+      String.fromCharCode(0x3c, 0x73, 0x63, 0x72, 0x69, 0x70, 0x74, 0x3e),
+      'javascript:alert(4)',
+    ];
+    for (let i = 0; i < 300; i++) {
+      const pick = () => payloads[Math.floor(rand() * payloads.length)];
+      const num = () => (rand() < 0.5 ? String(rand() * 1200) : Math.floor(rand() * 1200)) as unknown as number;
+      const svg = renderFlow({
+        title: pick(),
+        subtitle: pick(),
+        chip: pick(),
+        width: num(),
+        nodes: Array.from({ length: 1 + Math.floor(rand() * 3) }, (_, n) => ({
+          id: `n${n}`,
+          label: pick(),
+          lines: [pick()],
+          x: num(),
+          y: num(),
+        })),
+        edges: [{ from: 'n0', to: 'n0', label: pick(), path: pick() }],
+      });
+      expect(svg).not.toMatch(/<script[\s>]/i);
+      expect(svg.replace(/&lt;[^&]*&gt;/g, '')).not.toMatch(/\son\w+\s*=/i);
+    }
+  });
+});

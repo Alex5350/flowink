@@ -50,8 +50,50 @@ public static class FlowRenderer
         return string.Join("\n", parts);
     }
 
+    private const int MaxNodes = 500;
+    private const int MaxEdges = 1000;
+    private const int MaxLinesPerNode = 12;
+    private const int MaxFieldLength = 10_000;
+
     private static void Validate(FlowSpec spec)
     {
+        if (spec.Nodes is null || spec.Edges is null)
+        {
+            throw new InvalidOperationException("Spec must provide nodes and edges collections.");
+        }
+        if (spec.Nodes.Count > MaxNodes)
+        {
+            throw new InvalidOperationException($"Spec has {spec.Nodes.Count} nodes; the limit is {MaxNodes}.");
+        }
+        if (spec.Edges.Count > MaxEdges)
+        {
+            throw new InvalidOperationException($"Spec has {spec.Edges.Count} edges; the limit is {MaxEdges}.");
+        }
+        foreach (var text in new[] { spec.Title, spec.Subtitle, spec.Chip })
+        {
+            if (text?.Length > MaxFieldLength)
+            {
+                throw new InvalidOperationException($"Spec text fields are limited to {MaxFieldLength} characters.");
+            }
+        }
+        foreach (var node in spec.Nodes)
+        {
+            if ((node.Lines?.Count ?? 0) > MaxLinesPerNode)
+            {
+                throw new InvalidOperationException($"Node \"{node.Id}\" has too many detail lines; the limit is {MaxLinesPerNode}.");
+            }
+            if (node.Id is null || node.Id.Length > 200)
+            {
+                throw new InvalidOperationException("Node ids are required, limited to 200 characters.");
+            }
+        }
+        foreach (var edge in spec.Edges)
+        {
+            if ((edge.Label?.Length ?? 0) > MaxFieldLength || (edge.Path?.Length ?? 0) > MaxFieldLength)
+            {
+                throw new InvalidOperationException($"Edge text and path data are limited to {MaxFieldLength} characters.");
+            }
+        }
         if (spec.Nodes.Select(n => n.Id).Distinct().Count() != spec.Nodes.Count)
         {
             throw new InvalidOperationException("Duplicate node ids in spec.");
@@ -150,7 +192,7 @@ public static class FlowRenderer
         var path = ConnectBoxes(boxes[edge.From], boxes[edge.To], edge.Path);
         var color = edge.Color ?? "sky";
         var direction = edge.Direction ?? "forward";
-        var parts = new List<string> { $"  <path class=\"fi-{scope}-edge\" d=\"{path}\" style=\"stroke: {t.Edge} !important; fill: none !important; stroke-width: 1.5 !important\"/>" };
+        var parts = new List<string> { $"  <path class=\"fi-{scope}-edge\" d=\"{path}\" fill=\"none\" stroke=\"{t.Edge}\" stroke-width=\"1.5\" style=\"stroke: {t.Edge} !important; fill: none !important; stroke-width: 1.5 !important\"/>" };
 
         if (direction != "none")
         {
@@ -158,7 +200,7 @@ public static class FlowRenderer
                 ? $" fi-{scope}-flow-sky-b fi-{scope}-flow-emerald-b fi-{scope}-flow-amber-b fi-{scope}-flow-rose-b"
                 : "";
             var flowStroke = t.Flow(color);
-            parts.Add($"  <path class=\"fi-{scope}-flow-{color}{backward}\" d=\"{path}\" style=\"stroke: {flowStroke} !important; fill: none !important; stroke-width: 2 !important; stroke-dasharray: 5 11 !important\"/>");
+            parts.Add($"  <path class=\"fi-{scope}-flow-{color}{backward}\" d=\"{path}\" fill=\"none\" stroke=\"{flowStroke}\" stroke-width=\"2\" style=\"stroke: {flowStroke} !important; fill: none !important; stroke-width: 2 !important; stroke-dasharray: 5 11 !important\"/>");
         }
 
         if (edge.Label is not null)

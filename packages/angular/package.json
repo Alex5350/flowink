@@ -1,12 +1,12 @@
 {
   "name": "@flowink/angular",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Angular standalone component rendering FlowInk animated flow diagrams.",
   "type": "module",
   "peerDependencies": {
     "@angular/core": ">=16",
     "@angular/platform-browser": ">=16",
-    "@flowink/core": "0.1.0"
+    "@flowink/core": "0.1.2"
   },
   "scripts": {
     "build": "ng-packagr -p ng-package.json -c tsconfig.ngc.json"
@@ -24,5 +24,10 @@
   ],
   "devDependencies": {
     "ng-packagr": "^21.0.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Alex5350/flowink.git"
+  },
+  "license": "MIT"
 }

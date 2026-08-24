@@ -73,8 +73,8 @@ exactly this).
 
 ## F6 - Two themes on one page fought over styles (found by the docs audit)
 
-**Symptom.** A documentation review question - "what else should the docs capture?"
-- prompted auditing the dual-theme sample page with computed styles: the dark
+**Symptom.** A documentation review question ("what else should the docs capture?")
+prompted auditing the dual-theme sample page with computed styles: the dark
 diagram's nodes computed the *light* theme's fills. Inline SVG `<style>` blocks are
 **document-scoped**, not SVG-scoped, so two diagrams with different themes declared
 the same class names and the last block repainted both. The canvas backgrounds
@@ -141,6 +141,26 @@ was fixed for parity.
 **Lesson.** *A trust boundary stated in types is a boundary stated in hope.
 Escape and coerce at the sink, not just the source - and audit stated guarantees
 as aggressively as features.*
+
+## F9 - Resource bounds were absent, and malformed specs crashed opaquely (hardening pass)
+
+**Symptom.** A flood probe (20,000 nodes) rendered in 18 ms - into an **8 MB SVG**:
+no explosion risk, but a clean memory/DOM DoS vector for any server rendering
+API-supplied specs. Separately, a spec missing its `edges` array crashed with a raw
+`TypeError: spec.edges is not iterable` instead of a validation error.
+
+**Fix.** `validateSpec` now enforces structure (arrays must exist) and resource
+bounds - ≤500 nodes, ≤1,000 edges, ≤12 detail lines per node, ≤10,000 characters
+per text/path field - with explicit, actionable errors, mirrored in both renderers.
+Caps are deliberately generous for architecture diagrams and small enough to fail
+fast under flood. A seeded, dependency-free fuzz loop (300 randomized hostile specs
+across every field) joined the suite alongside boundary tests for each cap.
+
+**Also (CSP):** strict `Content-Security-Policy` deployments block inline `style`
+attributes, which would disarm the F7 hardening. Every path now carries presentation
+*attributes* (survive CSP) alongside the inline-important layer, so diagrams degrade
+gracefully - correct colors via attributes, animations lost - under `style-src`
+without `'unsafe-inline'`.
 
 ## F4 - Local NuGet feeds cache by exact version
 
