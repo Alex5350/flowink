@@ -14,6 +14,13 @@ import { connectBoxes, measureNode, pathMidpoint, type Box } from './geometry.js
  *     document is safe to embed anywhere an `<img>` can go.
  *   - `prefers-reduced-motion` freezes all animation.
  */
+/** Coerces an untrusted value to a clamped integer; TS types do not hold at the
+ *  JSON boundary, so every numeric interpolation passes through here. */
+function safeInt(value: unknown, fallback: number, min: number, max: number): number {
+  const n = typeof value === 'number' && Number.isFinite(value) ? Math.round(value) : fallback;
+  return Math.min(Math.max(n, min), max);
+}
+
 export function renderFlow(spec: FlowSpec): string {
   // Inline SVG <style> blocks are document-scoped: two diagrams with different
   // themes on one page would otherwise fight over the same class names (the
@@ -22,14 +29,14 @@ export function renderFlow(spec: FlowSpec): string {
   // independent. Same-theme diagrams share names - identical rules, no harm.
   const scope = spec.theme === 'light' ? 'light' : 'dark';
   const theme: Theme = spec.theme === 'light' ? light : dark;
-  const width = spec.width ?? 1200;
-  const height = spec.height ?? 640;
+  const width = safeInt(spec.width, 1200, 200, 10000);
+  const height = safeInt(spec.height, 640, 200, 10000);
 
   validateSpec(spec);
 
   const boxes = new Map<string, Box>();
   for (const node of spec.nodes) {
-    boxes.set(node.id, measureNode(node.label, node.lines ?? [], node.x, node.y, node.width, node.height));
+    boxes.set(node.id, measureNode(node.label, node.lines ?? [], safeInt(node.x, 0, -100000, 100000), safeInt(node.y, 0, -100000, 100000), node.width === undefined ? undefined : safeInt(node.width, 160, 1, 10000), node.height === undefined ? undefined : safeInt(node.height, 64, 1, 10000)));
   }
 
   const parts: string[] = [];
@@ -135,7 +142,7 @@ function renderTitle(spec: FlowSpec, width: number, theme: Theme): string {
 function renderEdge(edge: FlowEdge, boxes: Map<string, Box>, theme: Theme, scope: string): string {
   const from = boxes.get(edge.from)!;
   const to = boxes.get(edge.to)!;
-  const path = connectBoxes(from, to, edge.path);
+  const path = escapeXml(connectBoxes(from, to, edge.path));
   const color = edge.color ?? 'sky';
   const direction = edge.direction ?? 'forward';
   const parts: string[] = [];

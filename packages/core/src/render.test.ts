@@ -117,3 +117,36 @@ describe('host-CSS isolation (the css-war guarantee)', () => {
     expect(label).toContain('!important');
   });
 });
+
+describe('malicious-spec resistance (the injection boundary)', () => {
+  const evil: Record<string, unknown> = {
+    title: 'T <script>alert(0)</script>',
+    width: '1200"><script>alert(1)</script>',
+    nodes: [
+      { id: 'a', label: '<img src=x onerror=alert(9)>', x: 10, y: 10 },
+      { id: 'b', label: 'B', lines: ['</text><script>alert(5)</script>'], x: 400, y: 10 },
+    ],
+    edges: [
+      {
+        from: 'a',
+        to: 'b',
+        path: 'M0,0 H10"/><script>alert(3)</script><rect onload=alert(4) />',
+        label: '"><script>alert(6)</script>',
+      },
+    ],
+  };
+
+  it('escapes every field: no script elements, no handler attributes', () => {
+    const svg = renderFlow(evil as never);
+    expect(svg).not.toMatch(/<script[\s>]/);
+    // on*= must not appear as markup (escaped text inside attributes is fine)
+    expect(svg.replace(/&lt;[^&]*&gt;/g, '')).not.toMatch(/\son\w+\s*=/);
+  });
+
+  it('coerces smuggled string numerics to safe integers', () => {
+    const svg = renderFlow(evil as never);
+    expect(svg).toMatch(/<svg[^>]*width="1200"/);
+  });
+
+
+});

@@ -114,6 +114,34 @@ against targeted sabotage. What this guarantees is immunity to *generic* app CSS
 frameworks, resets, preflights, and legacy "brand colors" rulesheets. Styling the
 outer `<svg>` box itself (display, margins) remains the host's legitimate right.
 
+## F8 - The injection boundary was open at the JSON layer (found by a hardening audit)
+
+**Symptom.** A "what else should be hardened?" review questioned ADR 0004's
+safe-by-construction claim. A crafted spec - strings where the types promised
+numbers (`width: "1200"><script>…"`), markup inside `edge.path`, handler
+attributes in path data - produced **six `<script>` elements** in the rendered
+SVG. Because every framework wrapper injects the renderer's string through a
+sanitization bypass (the documented trust boundary), this was stored XSS for any
+application rendering specs from users, uploads, or APIs.
+
+**Root cause.** XML escaping covered all *text* fields, but (a) numeric
+interpolations trusted TypeScript types that JSON parsing does not enforce, and
+(b) manual edge `path` data was emitted raw into `d="…"` attributes and the
+`offset-path` style value.
+
+**Fix.** Runtime `safeInt` coercion (finite → clamped integer) on every numeric
+interpolation, and `edge.path` escaped like every other spec string, in both
+renderers. The malicious-spec battery (strings in number fields, breakouts in
+title/label/lines/path/label-of-edge) now yields **zero script elements, zero
+event-handler attributes, well-formed XML** - verified by string-level regression
+tests and an XML-parse audit. The .NET renderer's strictly-typed deserialization
+made the numeric smuggle structurally impossible there; its raw `path` emission
+was fixed for parity.
+
+**Lesson.** *A trust boundary stated in types is a boundary stated in hope.
+Escape and coerce at the sink, not just the source - and audit stated guarantees
+as aggressively as features.*
+
 ## F4 - Local NuGet feeds cache by exact version
 
 **Observation.** Replacing an `.nupkg` in a local folder feed without changing the

@@ -195,7 +195,9 @@ public static class FlowRenderer
     {
         if (manual is not null)
         {
-            return manual;
+            // Untrusted text destined for d="" and the offset-path style value:
+            // escape exactly like every other spec string (TS core parity).
+            return Escape(manual);
         }
         var horizontalGap = Math.Max(a.X, b.X) - Math.Min(a.X + a.Width, b.X + b.Width);
         if (horizontalGap >= -40)
