@@ -224,6 +224,13 @@ docs/              tutorial, ADRs, diagrams (spec + generated svg)
 
 ## The tutorial
 
+**[docs/limitations.md](docs/limitations.md)** catalogs what FlowInk deliberately
+does not do and the behaviors most likely to surprise (label collision duty, manual
+path caveats, embedding rules). **[docs/contributing.md](docs/contributing.md)**
+records the environment traps hit while building it - a global-gitignore exclusion
+of `packages/`, workspace-name collisions, npm 10/11 lockfile splits - with
+detection and fixes.
+
 **[docs/tutorial.md](docs/tutorial.md)** is the granular, from-scratch walkthrough:
 canvas anatomy, the dot pattern, content-sized nodes, the dash-math that makes flows
 seamless, bidirectional flow, pulses, CSS Motion Path packets, the accessibility

@@ -37,8 +37,8 @@ describe('renderFlow', () => {
 
   it('emits CSS keyframe flows for every color and reduced-motion opt-out', () => {
     for (const color of ['sky', 'emerald', 'amber', 'rose']) {
-      expect(svg).toContain(`@keyframes flowink-dash-${color}-f`);
-      expect(svg).toContain(`.flowink-flow-${color} {`);
+      expect(svg).toContain(`@keyframes fi-dark-dash-${color}-f`);
+      expect(svg).toContain(`.fi-dark-flow-${color} {`);
     }
     expect(svg).toContain('@media (prefers-reduced-motion: reduce)');
   });
@@ -46,20 +46,20 @@ describe('renderFlow', () => {
   it('renders nodes with labels, detail lines, and pulse classes', () => {
     expect(svg).toContain('>CLIENT</text>');
     expect(svg).toContain('>browser</text>');
-    expect(svg).toContain('class="flowink-node flowink-pulse"');
+    expect(svg).toContain('class="fi-dark-node fi-dark-pulse"');
   });
 
   it('renders edges with semantic colors, direction, labels, and packets', () => {
-    expect(svg).toContain('class="flowink-flow-sky"');
-    expect(svg).toContain('class="flowink-flow-emerald flowink-flow-sky-b flowink-flow-emerald-b flowink-flow-amber-b flowink-flow-rose-b"');
+    expect(svg).toContain('class="fi-dark-flow-sky"');
+    expect(svg).toContain('class="fi-dark-flow-emerald fi-dark-flow-sky-b fi-dark-flow-emerald-b fi-dark-flow-amber-b fi-dark-flow-rose-b"');
     expect(svg).toContain('>https</text>');
     expect(svg).toContain(">query</text>");
-    expect(svg).toContain('class="flowink-packet"');
+    expect(svg).toContain('class="fi-dark-packet"');
     expect(svg).toContain("offset-path: path('M");
   });
 
   it('connects horizontally aligned boxes with straight segments', () => {
-    expect(svg).toMatch(/class="flowink-flow-sky"[^/]*d="M\d+,\d+ H\d+"/);
+    expect(svg).toMatch(/class="fi-dark-flow-sky"[^/]*d="M\d+,\d+ H\d+"/);
   });
 
   it('escapes XML in user text', () => {
@@ -76,7 +76,7 @@ describe('renderFlow', () => {
   it('supports the light theme', () => {
     const light = renderFlow({ ...demoSpec, theme: 'light' });
     expect(light).toContain('fill="#F8FAFC"');
-    expect(light).toContain('#0284C7');
+    expect(light).toContain('.fi-light-flow-sky');
   });
 
   it('rejects edges that reference unknown nodes', () => {

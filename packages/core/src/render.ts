@@ -15,6 +15,12 @@ import { connectBoxes, measureNode, pathMidpoint, type Box } from './geometry.js
  *   - `prefers-reduced-motion` freezes all animation.
  */
 export function renderFlow(spec: FlowSpec): string {
+  // Inline SVG <style> blocks are document-scoped: two diagrams with different
+  // themes on one page would otherwise fight over the same class names (the
+  // last block wins document-wide). Colors differ ONLY by theme, so scoping
+  // every generated class and keyframe by theme makes coexisting diagrams
+  // independent. Same-theme diagrams share names - identical rules, no harm.
+  const scope = spec.theme === 'light' ? 'light' : 'dark';
   const theme: Theme = spec.theme === 'light' ? light : dark;
   const width = spec.width ?? 1200;
   const height = spec.height ?? 640;
@@ -28,17 +34,17 @@ export function renderFlow(spec: FlowSpec): string {
 
   const parts: string[] = [];
   parts.push(openSvg(spec, width, height, theme));
-  parts.push(renderDefs(theme));
-  parts.push(renderStyle(spec, theme));
-  parts.push(renderBackground(width, height, theme));
+  parts.push(renderDefs(scope, theme));
+  parts.push(renderStyle(scope, theme));
+  parts.push(renderBackground(width, height, theme, scope));
   parts.push(renderTitle(spec, width, theme));
 
   // Edges render beneath nodes.
   for (const edge of spec.edges) {
-    parts.push(renderEdge(edge, boxes, theme));
+    parts.push(renderEdge(edge, boxes, theme, scope));
   }
   for (const node of spec.nodes) {
-    parts.push(renderNode(node, boxes.get(node.id)!, theme));
+    parts.push(renderNode(node, boxes.get(node.id)!, theme, scope));
   }
 
   parts.push('</svg>\n');
@@ -63,46 +69,46 @@ function openSvg(spec: FlowSpec, width: number, height: number, theme: Theme): s
     .replace('>', `>\n  <title>${escapeXml(spec.title)}</title>`);
 }
 
-function renderDefs(theme: Theme): string {
+function renderDefs(scope: string, theme: Theme): string {
   return `  <defs>
-    <pattern id="flowink-dots" width="24" height="24" patternUnits="userSpaceOnUse">
+    <pattern id="fi-${scope}-dots" width="24" height="24" patternUnits="userSpaceOnUse">
       <circle cx="1" cy="1" r="1" fill="${theme.dot}"/>
     </pattern>
   </defs>`;
 }
 
-function renderStyle(spec: FlowSpec, theme: Theme): string {
+function renderStyle(scope: string, theme: Theme): string {
   const colors: Array<[string, string]> = Object.entries(theme.flows) as Array<[string, string]>;
   const keyframes = colors
     .map(
       ([name]) =>
-        `    @keyframes flowink-dash-${name}-f { to { stroke-dashoffset: -16; } }\n    @keyframes flowink-dash-${name}-b { to { stroke-dashoffset: 16; } }`,
+        `    @keyframes fi-${scope}-dash-${name}-f { to { stroke-dashoffset: -16; } }\n    @keyframes fi-${scope}-dash-${name}-b { to { stroke-dashoffset: 16; } }`,
     )
     .join('\n');
 
   const flowClasses = colors
     .map(
       ([name, hex]) =>
-        `    .flowink-flow-${name} { stroke: ${hex}; stroke-width: 2; fill: none; stroke-dasharray: 5 11; animation: flowink-dash-${name}-f 1.5s linear infinite; }\n    .flowink-flow-${name}-b { animation-name: flowink-dash-${name}-b; }`,
+        `    .fi-${scope}-flow-${name} { stroke: ${hex}; stroke-width: 2; fill: none; stroke-dasharray: 5 11; animation: fi-${scope}-dash-${name}-f 1.5s linear infinite; }\n    .fi-${scope}-flow-${name}-b { animation-name: fi-${scope}-dash-${name}-b; }`,
     )
     .join('\n');
 
   return `  <style>
-    .flowink-node { fill: ${theme.nodeFill}; stroke: ${theme.nodeStroke}; stroke-width: 1.2; }
-    .flowink-edge { stroke: ${theme.edge}; stroke-width: 1.5; fill: none; }
-    .flowink-pulse { animation: flowink-pulse 3s ease-in-out infinite; }
+    .fi-${scope}-node { fill: ${theme.nodeFill}; stroke: ${theme.nodeStroke}; stroke-width: 1.2; }
+    .fi-${scope}-edge { stroke: ${theme.edge}; stroke-width: 1.5; fill: none; }
+    .fi-${scope}-pulse { animation: fi-${scope}-pulse 3s ease-in-out infinite; }
 ${flowClasses}
-    .flowink-packet { animation: flowink-ride 1.5s linear infinite; }
-    @keyframes flowink-pulse { 0%, 100% { stroke-opacity: 1; } 50% { stroke-opacity: .5; } }
-    @keyframes flowink-ride { from { offset-distance: 0%; } to { offset-distance: 100%; } }
+    .fi-${scope}-packet { animation: fi-${scope}-ride 1.5s linear infinite; }
+    @keyframes fi-${scope}-pulse { 0%, 100% { stroke-opacity: 1; } 50% { stroke-opacity: .5; } }
+    @keyframes fi-${scope}-ride { from { offset-distance: 0%; } to { offset-distance: 100%; } }
 ${keyframes}
-    @media (prefers-reduced-motion: reduce) { .flowink-flow-sky, .flowink-flow-emerald, .flowink-flow-amber, .flowink-flow-rose { animation: none; } .flowink-pulse, .flowink-packet { animation: none; } }
+    @media (prefers-reduced-motion: reduce) { .fi-${scope}-flow-sky, .fi-${scope}-flow-emerald, .fi-${scope}-flow-amber, .fi-${scope}-flow-rose { animation: none; } .fi-${scope}-pulse, .fi-${scope}-packet { animation: none; } }
   </style>`;
 }
 
-function renderBackground(width: number, height: number, theme: Theme): string {
+function renderBackground(width: number, height: number, theme: Theme, scope: string): string {
   return `  <rect width="${width}" height="${height}" fill="${theme.canvas}"/>
-  <rect width="${width}" height="${height}" fill="url(#flowink-dots)" opacity=".5"/>`;
+  <rect width="${width}" height="${height}" fill="url(#fi-${scope}-dots)" opacity=".5"/>`;
 }
 
 function renderTitle(spec: FlowSpec, width: number, theme: Theme): string {
@@ -126,7 +132,7 @@ function renderTitle(spec: FlowSpec, width: number, theme: Theme): string {
   return parts.join('\n');
 }
 
-function renderEdge(edge: FlowEdge, boxes: Map<string, Box>, theme: Theme): string {
+function renderEdge(edge: FlowEdge, boxes: Map<string, Box>, theme: Theme, scope: string): string {
   const from = boxes.get(edge.from)!;
   const to = boxes.get(edge.to)!;
   const path = connectBoxes(from, to, edge.path);
@@ -135,10 +141,10 @@ function renderEdge(edge: FlowEdge, boxes: Map<string, Box>, theme: Theme): stri
   const parts: string[] = [];
 
   // Base edge first (visible even with animation frozen).
-  parts.push(`  <path class="flowink-edge" d="${path}"/>`);
+  parts.push(`  <path class="fi-${scope}-edge" d="${path}"/>`);
   if (direction !== 'none') {
-    const backward = direction === 'backward' ? ' flowink-flow-sky-b flowink-flow-emerald-b flowink-flow-amber-b flowink-flow-rose-b' : '';
-    parts.push(`  <path class="flowink-flow-${color}${backward}" d="${path}"/>`);
+    const backward = direction === 'backward' ? ` fi-${scope}-flow-sky-b fi-${scope}-flow-emerald-b fi-${scope}-flow-amber-b fi-${scope}-flow-rose-b` : '';
+    parts.push(`  <path class="fi-${scope}-flow-${color}${backward}" d="${path}"/>`);
   }
 
   if (edge.label) {
@@ -153,17 +159,17 @@ function renderEdge(edge: FlowEdge, boxes: Map<string, Box>, theme: Theme): stri
     // path scoped to this element. Note offset-path uses the path's own
     // coordinate space relative to the element position, so the circle is
     // placed at the origin and the path translates absolutely.
-    parts.push(`  <circle class="flowink-packet" r="3.5" fill="${theme.packet}" style="offset-path: path('${path}')"/>`);
+    parts.push(`  <circle class="fi-${scope}-packet" r="3.5" fill="${theme.packet}" style="offset-path: path('${path}')"/>`);
   }
 
   return parts.join('\n');
 }
 
-function renderNode(node: FlowNode, box: Box, theme: Theme): string {
+function renderNode(node: FlowNode, box: Box, theme: Theme, scope: string): string {
   const parts: string[] = [];
-  const pulseClass = node.pulse ? ' flowink-pulse' : '';
+  const pulseClass = node.pulse ? ` fi-${scope}-pulse` : '';
   const duration = typeof node.pulse === 'number' ? ` style="animation-duration: ${node.pulse}ms"` : '';
-  parts.push(`  <rect class="flowink-node${pulseClass}" x="${box.x}" y="${box.y}" width="${box.width}" height="${box.height}" rx="10"${duration}/>`);
+  parts.push(`  <rect class="fi-${scope}-node${pulseClass}" x="${box.x}" y="${box.y}" width="${box.width}" height="${box.height}" rx="10"${duration}/>`);
   parts.push(
     `  <text x="${box.x + 20}" y="${box.y + 26}" style="font: 600 13px ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .5px" fill="${theme.nodeText}">${escapeXml(node.label)}</text>`,
   );

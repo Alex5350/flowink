@@ -17,6 +17,10 @@ public static class FlowRenderer
     {
         Validate(spec);
         var theme = spec.Theme == "light" ? Theme.Light : Theme.Dark;
+        // Same rationale as the TypeScript core: inline SVG <style> is document-
+        // scoped, so classes and keyframes are suffixed by theme to keep
+        // different-theme diagrams on one page independent.
+        var scope = spec.Theme == "light" ? "light" : "dark";
         var width = spec.Width ?? 1200;
         var height = spec.Height ?? 640;
 
@@ -27,19 +31,19 @@ public static class FlowRenderer
         var parts = new List<string>
         {
             OpenSvg(spec, width, height),
-            RenderDefs(),
-            RenderStyle(theme),
-            RenderBackground(width, height, theme),
+            RenderDefs(scope),
+            RenderStyle(scope, theme),
+            RenderBackground(width, height, theme, scope),
             RenderTitle(spec, width, theme),
         };
 
         foreach (var edge in spec.Edges)
         {
-            parts.Add(RenderEdge(edge, boxes, theme));
+            parts.Add(RenderEdge(edge, boxes, theme, scope));
         }
         foreach (var node in spec.Nodes)
         {
-            parts.Add(RenderNode(node, boxes[node.Id], theme));
+            parts.Add(RenderNode(node, boxes[node.Id], theme, scope));
         }
 
         parts.Add("</svg>\n");
@@ -80,43 +84,45 @@ public static class FlowRenderer
             "  <title>" + Escape(spec.Title) + "</title>";
     }
 
-    private static string RenderDefs() =>
+    private static string RenderDefs(string scope) =>
         "  <defs>\n" +
-        "    <pattern id=\"flowink-dots\" width=\"24\" height=\"24\" patternUnits=\"userSpaceOnUse\">\n" +
+        $"    <pattern id=\"fi-{scope}-dots\" width=\"24\" height=\"24\" patternUnits=\"userSpaceOnUse\">\n" +
         "      <circle cx=\"1\" cy=\"1\" r=\"1\" fill=\"" + Theme.Dark.Dot + "\"/>\n" +
         "    </pattern>\n" +
         "  </defs>";
 
-    private static string RenderStyle(Theme t) =>
-        "  <style>\n" +
-        $"    .flowink-node {{ fill: {t.NodeFill}; stroke: {t.NodeStroke}; stroke-width: 1.2; }}\n" +
-        $"    .flowink-edge {{ stroke: {t.Edge}; stroke-width: 1.5; fill: none; }}\n" +
-        "    .flowink-pulse { animation: flowink-pulse 3s ease-in-out infinite; }\n" +
-        $"    .flowink-flow-sky {{ stroke: {t.Sky}; stroke-width: 2; fill: none; stroke-dasharray: 5 11; animation: flowink-dash-sky-f 1.5s linear infinite; }}\n" +
-        "    .flowink-flow-sky-b { animation-name: flowink-dash-sky-b; }\n" +
-        $"    .flowink-flow-emerald {{ stroke: {t.Emerald}; stroke-width: 2; fill: none; stroke-dasharray: 5 11; animation: flowink-dash-emerald-f 1.5s linear infinite; }}\n" +
-        "    .flowink-flow-emerald-b { animation-name: flowink-dash-emerald-b; }\n" +
-        $"    .flowink-flow-amber {{ stroke: {t.Amber}; stroke-width: 2; fill: none; stroke-dasharray: 5 11; animation: flowink-dash-amber-f 1.5s linear infinite; }}\n" +
-        "    .flowink-flow-amber-b { animation-name: flowink-dash-amber-b; }\n" +
-        $"    .flowink-flow-rose {{ stroke: {t.Rose}; stroke-width: 2; fill: none; stroke-dasharray: 5 11; animation: flowink-dash-rose-f 1.5s linear infinite; }}\n" +
-        "    .flowink-flow-rose-b { animation-name: flowink-dash-rose-b; }\n" +
-        "    .flowink-packet { animation: flowink-ride 1.5s linear infinite; }\n" +
-        "    @keyframes flowink-pulse { 0%, 100% { stroke-opacity: 1; } 50% { stroke-opacity: .5; } }\n" +
-        "    @keyframes flowink-ride { from { offset-distance: 0%; } to { offset-distance: 100%; } }\n" +
-        "    @keyframes flowink-dash-sky-f { to { stroke-dashoffset: -16; } }\n" +
-        "    @keyframes flowink-dash-sky-b { to { stroke-dashoffset: 16; } }\n" +
-        "    @keyframes flowink-dash-emerald-f { to { stroke-dashoffset: -16; } }\n" +
-        "    @keyframes flowink-dash-emerald-b { to { stroke-dashoffset: 16; } }\n" +
-        "    @keyframes flowink-dash-amber-f { to { stroke-dashoffset: -16; } }\n" +
-        "    @keyframes flowink-dash-amber-b { to { stroke-dashoffset: 16; } }\n" +
-        "    @keyframes flowink-dash-rose-f { to { stroke-dashoffset: -16; } }\n" +
-        "    @keyframes flowink-dash-rose-b { to { stroke-dashoffset: 16; } }\n" +
-        "    @media (prefers-reduced-motion: reduce) { .flowink-flow-sky, .flowink-flow-emerald, .flowink-flow-amber, .flowink-flow-rose { animation: none; } .flowink-pulse, .flowink-packet { animation: none; } }\n" +
-        "  </style>";
+    private static string RenderStyle(string scope, Theme t) => string.Join("\n", new[]
+    {
+        "  <style>",
+        $"    .fi-{scope}-node {{ fill: {t.NodeFill}; stroke: {t.NodeStroke}; stroke-width: 1.2; }}",
+        $"    .fi-{scope}-edge {{ stroke: {t.Edge}; stroke-width: 1.5; fill: none; }}",
+        $"    .fi-{scope}-pulse {{ animation: fi-{scope}-pulse 3s ease-in-out infinite; }}",
+        $"    .fi-{scope}-flow-sky {{ stroke: {t.Sky}; stroke-width: 2; fill: none; stroke-dasharray: 5 11; animation: fi-{scope}-dash-sky-f 1.5s linear infinite; }}",
+        $"    .fi-{scope}-flow-sky-b {{ animation-name: fi-{scope}-dash-sky-b; }}",
+        $"    .fi-{scope}-flow-emerald {{ stroke: {t.Emerald}; stroke-width: 2; fill: none; stroke-dasharray: 5 11; animation: fi-{scope}-dash-emerald-f 1.5s linear infinite; }}",
+        $"    .fi-{scope}-flow-emerald-b {{ animation-name: fi-{scope}-dash-emerald-b; }}",
+        $"    .fi-{scope}-flow-amber {{ stroke: {t.Amber}; stroke-width: 2; fill: none; stroke-dasharray: 5 11; animation: fi-{scope}-dash-amber-f 1.5s linear infinite; }}",
+        $"    .fi-{scope}-flow-amber-b {{ animation-name: fi-{scope}-dash-amber-b; }}",
+        $"    .fi-{scope}-flow-rose {{ stroke: {t.Rose}; stroke-width: 2; fill: none; stroke-dasharray: 5 11; animation: fi-{scope}-dash-rose-f 1.5s linear infinite; }}",
+        $"    .fi-{scope}-flow-rose-b {{ animation-name: fi-{scope}-dash-rose-b; }}",
+        $"    .fi-{scope}-packet {{ animation: fi-{scope}-ride 1.5s linear infinite; }}",
+        $"    @keyframes fi-{scope}-pulse {{ 0%, 100% {{ stroke-opacity: 1; }} 50% {{ stroke-opacity: .5; }} }}",
+        $"    @keyframes fi-{scope}-ride {{ from {{ offset-distance: 0%; }} to {{ offset-distance: 100%; }} }}",
+        $"    @keyframes fi-{scope}-dash-sky-f {{ to {{ stroke-dashoffset: -16; }} }}",
+        $"    @keyframes fi-{scope}-dash-sky-b {{ to {{ stroke-dashoffset: 16; }} }}",
+        $"    @keyframes fi-{scope}-dash-emerald-f {{ to {{ stroke-dashoffset: -16; }} }}",
+        $"    @keyframes fi-{scope}-dash-emerald-b {{ to {{ stroke-dashoffset: 16; }} }}",
+        $"    @keyframes fi-{scope}-dash-amber-f {{ to {{ stroke-dashoffset: -16; }} }}",
+        $"    @keyframes fi-{scope}-dash-amber-b {{ to {{ stroke-dashoffset: 16; }} }}",
+        $"    @keyframes fi-{scope}-dash-rose-f {{ to {{ stroke-dashoffset: -16; }} }}",
+        $"    @keyframes fi-{scope}-dash-rose-b {{ to {{ stroke-dashoffset: 16; }} }}",
+        $"    @media (prefers-reduced-motion: reduce) {{ .fi-{scope}-flow-sky, .fi-{scope}-flow-emerald, .fi-{scope}-flow-amber, .fi-{scope}-flow-rose {{ animation: none; }} .fi-{scope}-pulse, .fi-{scope}-packet {{ animation: none; }} }}",
+        "  </style>",
+    });
 
-    private static string RenderBackground(int width, int height, Theme theme) =>
+    private static string RenderBackground(int width, int height, Theme theme, string scope) =>
         $"  <rect width=\"{width}\" height=\"{height}\" fill=\"{theme.Canvas}\"/>\n" +
-        $"  <rect width=\"{width}\" height=\"{height}\" fill=\"url(#flowink-dots)\" opacity=\".5\"/>";
+        $"  <rect width=\"{width}\" height=\"{height}\" fill=\"url(#fi-{scope}-dots)\" opacity=\".5\"/>";
 
     private static string RenderTitle(FlowSpec spec, int width, Theme t)
     {
@@ -139,19 +145,19 @@ public static class FlowRenderer
         return string.Join("\n", parts);
     }
 
-    private static string RenderEdge(FlowEdge edge, Dictionary<string, Box> boxes, Theme t)
+    private static string RenderEdge(FlowEdge edge, Dictionary<string, Box> boxes, Theme t, string scope)
     {
         var path = ConnectBoxes(boxes[edge.From], boxes[edge.To], edge.Path);
         var color = edge.Color ?? "sky";
         var direction = edge.Direction ?? "forward";
-        var parts = new List<string> { $"""  <path class="flowink-edge" d="{path}"/>""" };
+        var parts = new List<string> { $"  <path class=\"fi-{scope}-edge\" d=\"{path}\"/>" };
 
         if (direction != "none")
         {
             var backward = direction == "backward"
-                ? " flowink-flow-sky-b flowink-flow-emerald-b flowink-flow-amber-b flowink-flow-rose-b"
+                ? $" fi-{scope}-flow-sky-b fi-{scope}-flow-emerald-b fi-{scope}-flow-amber-b fi-{scope}-flow-rose-b"
                 : "";
-            parts.Add($"""  <path class="flowink-flow-{color}{backward}" d="{path}"/>""");
+            parts.Add($"  <path class=\"fi-{scope}-flow-{color}{backward}\" d=\"{path}\"/>");
         }
 
         if (edge.Label is not null)
@@ -162,18 +168,18 @@ public static class FlowRenderer
 
         if (edge.Packet && direction != "none")
         {
-            parts.Add($"""  <circle class="flowink-packet" r="3.5" fill="{t.Packet}" style="offset-path: path('{path}')"/>""");
+            parts.Add($"  <circle class=\"fi-{scope}-packet\" r=\"3.5\" fill=\"{t.Packet}\" style=\"offset-path: path('{path}')\"/>");
         }
 
         return string.Join("\n", parts);
     }
 
-    private static string RenderNode(FlowNode node, Box box, Theme t)
+    private static string RenderNode(FlowNode node, Box box, Theme t, string scope)
     {
         var parts = new List<string>();
-        var pulseClass = node.Pulse is { Enabled: true } ? " flowink-pulse" : "";
+        var pulseClass = node.Pulse is { Enabled: true } ? $" fi-{scope}-pulse" : "";
         var duration = node.Pulse is { Enabled: true, DurationMs: not 3000 } p ? $" style=\"animation-duration: {p.DurationMs}ms\"" : "";
-        parts.Add($"""  <rect class="flowink-node{pulseClass}" x="{box.X}" y="{box.Y}" width="{box.Width}" height="{box.Height}" rx="10"{duration}/>""");
+        parts.Add($"  <rect class=\"fi-{scope}-node{pulseClass}\" x=\"{box.X}\" y=\"{box.Y}\" width=\"{box.Width}\" height=\"{box.Height}\" rx=\"10\"{duration}/>");
         parts.Add($"""  <text x="{box.X + 20}" y="{box.Y + 26}" style="font: 600 13px ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .5px" fill="{t.NodeText}">{Escape(node.Label)}</text>""");
         var index = 0;
         foreach (var line in node.Lines ?? [])

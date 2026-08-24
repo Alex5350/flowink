@@ -71,6 +71,27 @@ duplicate renderer instances), with a dev dependency for the in-repo tests. Docu
 while unpublished, install both tarballs in one `npm install` command (the sample does
 exactly this).
 
+## F6 - Two themes on one page fought over styles (found by the docs audit)
+
+**Symptom.** A documentation review question - "what else should the docs capture?"
+- prompted auditing the dual-theme sample page with computed styles: the dark
+diagram's nodes computed the *light* theme's fills. Inline SVG `<style>` blocks are
+**document-scoped**, not SVG-scoped, so two diagrams with different themes declared
+the same class names and the last block repainted both. The canvas backgrounds
+survived (attribute-based fills), making the break a subtle hybrid - easy to read
+past in a screenshot.
+
+**Fix.** Every generated class, keyframe, and the dot-pattern `id` are now suffixed
+by theme (`fi-dark-node`, `fi-light-flow-sky`, `fi-dark-dots`): colors differ only
+by theme, so theme is the correct scope key - same-theme diagrams share names with
+identical rules (harmless), different-theme diagrams are fully independent.
+Implemented in both renderers; parity fixture regenerated; the dual-theme page now
+computes each theme's own colors (verified). Documented in
+[limitations.md](limitations.md).
+
+**Lesson.** *Audit computed styles, not screenshots - and an "is there anything else
+to document?" pass is itself a test rig.*
+
 ## F4 - Local NuGet feeds cache by exact version
 
 **Observation.** Replacing an `.nupkg` in a local folder feed without changing the
