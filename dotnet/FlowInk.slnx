@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="src/FlowInk.Core/FlowInk.Core.csproj" />
+  <Project Path="src/FlowInk.Blazor/FlowInk.Blazor.csproj" />
+  <Project Path="tests/FlowInk.Tests/FlowInk.Tests.csproj" />
+</Solution>

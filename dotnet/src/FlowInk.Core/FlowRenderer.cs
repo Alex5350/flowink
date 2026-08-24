@@ -1,0 +1,264 @@
+using System.Text.Json;
+
+namespace FlowInk.Core;
+
+/// <summary>
+/// C# renderer for FlowInk specs — output parity with the TypeScript core is
+/// enforced by tests (same spec JSON produces a structurally identical SVG).
+/// Same hard guarantees: CSS-only animation, no SMIL, no external references.
+/// </summary>
+public static class FlowRenderer
+{
+    public static FlowSpec ParseSpecJson(string json) =>
+        JsonSerializer.Deserialize<FlowSpec>(json, JsonOptions.Instance)
+        ?? throw new InvalidOperationException("Spec JSON deserialized to null.");
+
+    public static string Render(FlowSpec spec)
+    {
+        Validate(spec);
+        var theme = spec.Theme == "light" ? Theme.Light : Theme.Dark;
+        var width = spec.Width ?? 1200;
+        var height = spec.Height ?? 640;
+
+        var boxes = spec.Nodes.ToDictionary(
+            n => n.Id,
+            n => MeasureNode(n));
+
+        var parts = new List<string>
+        {
+            OpenSvg(spec, width, height),
+            RenderDefs(),
+            RenderStyle(theme),
+            RenderBackground(width, height, theme),
+            RenderTitle(spec, width, theme),
+        };
+
+        foreach (var edge in spec.Edges)
+        {
+            parts.Add(RenderEdge(edge, boxes, theme));
+        }
+        foreach (var node in spec.Nodes)
+        {
+            parts.Add(RenderNode(node, boxes[node.Id], theme));
+        }
+
+        parts.Add("</svg>\n");
+        return string.Join("\n", parts);
+    }
+
+    private static void Validate(FlowSpec spec)
+    {
+        if (spec.Nodes.Select(n => n.Id).Distinct().Count() != spec.Nodes.Count)
+        {
+            throw new InvalidOperationException("Duplicate node ids in spec.");
+        }
+        var ids = spec.Nodes.Select(n => n.Id).ToHashSet();
+        foreach (var edge in spec.Edges)
+        {
+            if (!ids.Contains(edge.From) || !ids.Contains(edge.To))
+            {
+                throw new InvalidOperationException($"Edge references unknown node: {edge.From} -> {edge.To}");
+            }
+        }
+    }
+
+    private static Box MeasureNode(FlowNode node)
+    {
+        var lines = node.Lines ?? [];
+        var longest = new[] { node.Label.Length }.Concat(lines.Select(l => l.Length)).Append(8).Max();
+        var widthDefault = Math.Max(160, (int)Math.Ceiling(longest * 7.2) + 40);
+        var heightDefault = Math.Max(64, 40 + (1 + lines.Count) * 18 + (lines.Count > 0 ? 8 : 0));
+        return new Box(node.X, node.Y, node.Width ?? widthDefault, node.Height ?? heightDefault);
+    }
+
+    private static string OpenSvg(FlowSpec spec, int width, int height)
+    {
+        var label = $"{spec.Title}{(spec.Subtitle is not null ? $" — {spec.Subtitle}" : "")}. Animated flows: colored dashes move along request paths; node borders breathe.";
+        return
+            "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"" + width + "\" height=\"" + height +
+            "\" viewBox=\"0 0 " + width + " " + height + "\" role=\"img\" aria-label=\"" + Escape(label) + "\">\n" +
+            "  <title>" + Escape(spec.Title) + "</title>";
+    }
+
+    private static string RenderDefs() =>
+        "  <defs>\n" +
+        "    <pattern id=\"flowink-dots\" width=\"24\" height=\"24\" patternUnits=\"userSpaceOnUse\">\n" +
+        "      <circle cx=\"1\" cy=\"1\" r=\"1\" fill=\"" + Theme.Dark.Dot + "\"/>\n" +
+        "    </pattern>\n" +
+        "  </defs>";
+
+    private static string RenderStyle(Theme t) =>
+        "  <style>\n" +
+        $"    .flowink-node {{ fill: {t.NodeFill}; stroke: {t.NodeStroke}; stroke-width: 1.2; }}\n" +
+        $"    .flowink-edge {{ stroke: {t.Edge}; stroke-width: 1.5; fill: none; }}\n" +
+        "    .flowink-pulse { animation: flowink-pulse 3s ease-in-out infinite; }\n" +
+        $"    .flowink-flow-sky {{ stroke: {t.Sky}; stroke-width: 2; fill: none; stroke-dasharray: 5 11; animation: flowink-dash-sky-f 1.5s linear infinite; }}\n" +
+        "    .flowink-flow-sky-b { animation-name: flowink-dash-sky-b; }\n" +
+        $"    .flowink-flow-emerald {{ stroke: {t.Emerald}; stroke-width: 2; fill: none; stroke-dasharray: 5 11; animation: flowink-dash-emerald-f 1.5s linear infinite; }}\n" +
+        "    .flowink-flow-emerald-b { animation-name: flowink-dash-emerald-b; }\n" +
+        $"    .flowink-flow-amber {{ stroke: {t.Amber}; stroke-width: 2; fill: none; stroke-dasharray: 5 11; animation: flowink-dash-amber-f 1.5s linear infinite; }}\n" +
+        "    .flowink-flow-amber-b { animation-name: flowink-dash-amber-b; }\n" +
+        $"    .flowink-flow-rose {{ stroke: {t.Rose}; stroke-width: 2; fill: none; stroke-dasharray: 5 11; animation: flowink-dash-rose-f 1.5s linear infinite; }}\n" +
+        "    .flowink-flow-rose-b { animation-name: flowink-dash-rose-b; }\n" +
+        "    .flowink-packet { animation: flowink-ride 1.5s linear infinite; }\n" +
+        "    @keyframes flowink-pulse { 0%, 100% { stroke-opacity: 1; } 50% { stroke-opacity: .5; } }\n" +
+        "    @keyframes flowink-ride { from { offset-distance: 0%; } to { offset-distance: 100%; } }\n" +
+        "    @keyframes flowink-dash-sky-f { to { stroke-dashoffset: -16; } }\n" +
+        "    @keyframes flowink-dash-sky-b { to { stroke-dashoffset: 16; } }\n" +
+        "    @keyframes flowink-dash-emerald-f { to { stroke-dashoffset: -16; } }\n" +
+        "    @keyframes flowink-dash-emerald-b { to { stroke-dashoffset: 16; } }\n" +
+        "    @keyframes flowink-dash-amber-f { to { stroke-dashoffset: -16; } }\n" +
+        "    @keyframes flowink-dash-amber-b { to { stroke-dashoffset: 16; } }\n" +
+        "    @keyframes flowink-dash-rose-f { to { stroke-dashoffset: -16; } }\n" +
+        "    @keyframes flowink-dash-rose-b { to { stroke-dashoffset: 16; } }\n" +
+        "    @media (prefers-reduced-motion: reduce) { .flowink-flow-sky, .flowink-flow-emerald, .flowink-flow-amber, .flowink-flow-rose { animation: none; } .flowink-pulse, .flowink-packet { animation: none; } }\n" +
+        "  </style>";
+
+    private static string RenderBackground(int width, int height, Theme theme) =>
+        $"  <rect width=\"{width}\" height=\"{height}\" fill=\"{theme.Canvas}\"/>\n" +
+        $"  <rect width=\"{width}\" height=\"{height}\" fill=\"url(#flowink-dots)\" opacity=\".5\"/>";
+
+    private static string RenderTitle(FlowSpec spec, int width, Theme t)
+    {
+        var parts = new List<string>
+        {
+            $"""  <text x="40" y="46" style="font: 600 20px ui-sans-serif, system-ui, sans-serif" fill="{t.Title}">{Escape(spec.Title)}</text>""",
+        };
+        if (spec.Subtitle is not null)
+        {
+            parts.Add($"""  <text x="40" y="68" style="font: 12px ui-monospace, SFMono-Regular, Menlo, monospace" fill="{t.Subtitle}">{Escape(spec.Subtitle)}</text>""");
+        }
+        if (spec.Chip is not null)
+        {
+            var chipWidth = Math.Max(200.0, spec.Chip.Length * 6.4 + 40);
+            var chipX = width - chipWidth - 40;
+            var inv = System.Globalization.CultureInfo.InvariantCulture;
+            parts.Add($"  <rect x=\"{chipX.ToString(inv)}\" y=\"30\" width=\"{chipWidth.ToString(inv)}\" height=\"26\" rx=\"13\" fill=\"none\" stroke=\"{t.ChipStroke}\" stroke-opacity=\".5\"/>");
+            parts.Add($"  <text x=\"{(chipX + chipWidth / 2).ToString(inv)}\" y=\"47\" text-anchor=\"middle\" style=\"font: 10px ui-monospace, SFMono-Regular, Menlo, monospace\" fill=\"{t.ChipStroke}\">{Escape(spec.Chip)}</text>");
+        }
+        return string.Join("\n", parts);
+    }
+
+    private static string RenderEdge(FlowEdge edge, Dictionary<string, Box> boxes, Theme t)
+    {
+        var path = ConnectBoxes(boxes[edge.From], boxes[edge.To], edge.Path);
+        var color = edge.Color ?? "sky";
+        var direction = edge.Direction ?? "forward";
+        var parts = new List<string> { $"""  <path class="flowink-edge" d="{path}"/>""" };
+
+        if (direction != "none")
+        {
+            var backward = direction == "backward"
+                ? " flowink-flow-sky-b flowink-flow-emerald-b flowink-flow-amber-b flowink-flow-rose-b"
+                : "";
+            parts.Add($"""  <path class="flowink-flow-{color}{backward}" d="{path}"/>""");
+        }
+
+        if (edge.Label is not null)
+        {
+            var mid = PathMidpoint(path);
+            parts.Add($"""  <text x="{(int)Math.Round(mid.X)}" y="{(int)Math.Round(mid.Y) - 8}" text-anchor="middle" style="font: 10px ui-monospace, SFMono-Regular, Menlo, monospace" fill="{t.Flow(color)}">{Escape(edge.Label)}</text>""");
+        }
+
+        if (edge.Packet && direction != "none")
+        {
+            parts.Add($"""  <circle class="flowink-packet" r="3.5" fill="{t.Packet}" style="offset-path: path('{path}')"/>""");
+        }
+
+        return string.Join("\n", parts);
+    }
+
+    private static string RenderNode(FlowNode node, Box box, Theme t)
+    {
+        var parts = new List<string>();
+        var pulseClass = node.Pulse.HasValue ? " flowink-pulse" : "";
+        var duration = node.PulseDurationMs() is { } ms ? $" style=\"animation-duration: {ms}ms\"" : "";
+        parts.Add($"""  <rect class="flowink-node{pulseClass}" x="{box.X}" y="{box.Y}" width="{box.Width}" height="{box.Height}" rx="10"{duration}/>""");
+        parts.Add($"""  <text x="{box.X + 20}" y="{box.Y + 26}" style="font: 600 13px ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .5px" fill="{t.NodeText}">{Escape(node.Label)}</text>""");
+        var index = 0;
+        foreach (var line in node.Lines ?? [])
+        {
+            parts.Add($"""  <text x="{box.X + 20}" y="{box.Y + 48 + index * 18}" style="font: 11px ui-monospace, SFMono-Regular, Menlo, monospace" fill="{t.BodyText}">{Escape(line)}</text>""");
+            index++;
+        }
+        return string.Join("\n", parts);
+    }
+
+    internal static string ConnectBoxes(Box a, Box b, string? manual)
+    {
+        if (manual is not null)
+        {
+            return manual;
+        }
+        var horizontalGap = Math.Max(a.X, b.X) - Math.Min(a.X + a.Width, b.X + b.Width);
+        if (horizontalGap >= -40)
+        {
+            var (left, right) = a.X + a.Width / 2.0 < b.X + b.Width / 2.0 ? (a, b) : (b, a);
+            var startX = left.X + left.Width;
+            var endX = right.X;
+            var rawY = (left.Y + left.Height / 2.0 + right.Y + right.Height / 2.0) / 2;
+            var startY = ClampVertical(rawY, left);
+            var endY = ClampVertical(rawY, right);
+            if (Math.Abs(startY - endY) < 8)
+            {
+                return $"M{startX},{startY} H{endX}";
+            }
+            var midX = (int)Math.Round((startX + endX) / 2.0);
+            return $"M{startX},{startY} C{midX},{startY} {midX},{endY} {endX},{endY}";
+        }
+        else
+        {
+            var (top, bottom) = a.Y + a.Height / 2.0 < b.Y + b.Height / 2.0 ? (a, b) : (b, a);
+            var startY = top.Y + top.Height;
+            var endY = bottom.Y;
+            var rawX = (top.X + top.Width / 2.0 + bottom.X + bottom.Width / 2.0) / 2;
+            var startX = ClampHorizontal(rawX, top);
+            var endX = ClampHorizontal(rawX, bottom);
+            if (Math.Abs(startX - endX) < 8)
+            {
+                return $"M{startX},{startY} V{endY}";
+            }
+            var midY = (int)Math.Round((startY + endY) / 2.0);
+            return $"M{startX},{startY} C{startX},{midY} {endX},{midY} {endX},{endY}";
+        }
+    }
+
+    internal static (double X, double Y) PathMidpoint(string path)
+    {
+        var numbers = System.Text.RegularExpressions.Regex
+            .Matches(path, @"-?\d+(?:\.\d+)?")
+            .Select(m => double.Parse(m.Value))
+            .ToList();
+        if (numbers.Count < 2)
+        {
+            return (0, 0);
+        }
+        var xs = numbers.Where((_, i) => i % 2 == 0).ToList();
+        var ys = numbers.Where((_, i) => i % 2 == 1).ToList();
+        return ((xs.Min() + xs.Max()) / 2, (ys.Min() + ys.Max()) / 2);
+    }
+
+    private static int ClampVertical(double value, Box box) =>
+        (int)Math.Round(Math.Min(Math.Max(value, box.Y + 10), box.Y + box.Height - 10), MidpointRounding.AwayFromZero);
+
+    private static int ClampHorizontal(double value, Box box) =>
+        (int)Math.Round(Math.Min(Math.Max(value, box.X + 10), box.X + box.Width - 10), MidpointRounding.AwayFromZero);
+
+    private static string Escape(string value) => value
+        .Replace("&", "&amp;")
+        .Replace("<", "&lt;")
+        .Replace(">", "&gt;")
+        .Replace("\"", "&quot;")
+        .Replace("'", "&apos;");
+
+    internal sealed record Box(int X, int Y, int Width, int Height);
+}
+
+internal static class JsonOptions
+{
+    public static readonly JsonSerializerOptions Instance = new()
+    {
+        PropertyNameCaseInsensitive = true,
+        ReadCommentHandling = JsonCommentHandling.Skip,
+    };
+}
