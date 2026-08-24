@@ -1,0 +1,10 @@
+{
+  "name": "flowink",
+  "private": true,
+  "workspaces": ["packages/*", "apps/*"],
+  "scripts": {
+    "build": "npm run build -w @flowink/core -w @flowink/react -w flowink-cli",
+    "test": "npm run test -w @flowink/core -w @flowink/react",
+    "test:dotnet": "dotnet test dotnet/FlowInk.sln"
+  }
+}
