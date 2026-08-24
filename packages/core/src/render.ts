@@ -107,26 +107,26 @@ ${keyframes}
 }
 
 function renderBackground(width: number, height: number, theme: Theme, scope: string): string {
-  return `  <rect width="${width}" height="${height}" fill="${theme.canvas}"/>
-  <rect width="${width}" height="${height}" fill="url(#fi-${scope}-dots)" opacity=".5"/>`;
+  return `  <rect width="${width}" height="${height}" fill="${theme.canvas}" style="fill:${theme.canvas} !important"/>
+  <rect width="${width}" height="${height}" fill="url(#fi-${scope}-dots)" opacity=".5" style="fill:url(#fi-${scope}-dots) !important"/>`;
 }
 
 function renderTitle(spec: FlowSpec, width: number, theme: Theme): string {
   const parts: string[] = [];
   parts.push(
-    `  <text x="40" y="46" style="font: 600 20px ui-sans-serif, system-ui, sans-serif" fill="${theme.title}">${escapeXml(spec.title)}</text>`,
+    `  <text x="40" y="46" style="font: 600 20px ui-sans-serif, system-ui, sans-serif !important; fill: ${theme.title} !important" fill="${theme.title}">${escapeXml(spec.title)}</text>`,
   );
   if (spec.subtitle) {
     parts.push(
-      `  <text x="40" y="68" style="font: 12px ui-monospace, SFMono-Regular, Menlo, monospace" fill="${theme.subtitle}">${escapeXml(spec.subtitle)}</text>`,
+      `  <text x="40" y="68" style="font: 12px ui-monospace, SFMono-Regular, Menlo, monospace !important; fill: ${theme.subtitle} !important" fill="${theme.subtitle}">${escapeXml(spec.subtitle)}</text>`,
     );
   }
   if (spec.chip) {
     const chipWidth = Math.max(200, spec.chip.length * 6.4 + 40);
     const chipX = width - chipWidth - 40;
-    parts.push(`  <rect x="${chipX}" y="30" width="${chipWidth}" height="26" rx="13" fill="none" stroke="${theme.chipStroke}" stroke-opacity=".5"/>`);
+    parts.push(`  <rect x="${chipX}" y="30" width="${chipWidth}" height="26" rx="13" fill="none" stroke="${theme.chipStroke}" stroke-opacity=".5" style="fill: none !important; stroke: ${theme.chipStroke} !important; stroke-opacity: .5 !important"/>`);
     parts.push(
-      `  <text x="${chipX + chipWidth / 2}" y="47" text-anchor="middle" style="font: 10px ui-monospace, SFMono-Regular, Menlo, monospace" fill="${theme.chipStroke}">${escapeXml(spec.chip)}</text>`,
+      `  <text x="${chipX + chipWidth / 2}" y="47" text-anchor="middle" style="font: 10px ui-monospace, SFMono-Regular, Menlo, monospace !important; fill: ${theme.chipStroke} !important" fill="${theme.chipStroke}">${escapeXml(spec.chip)}</text>`,
     );
   }
   return parts.join('\n');
@@ -141,16 +141,16 @@ function renderEdge(edge: FlowEdge, boxes: Map<string, Box>, theme: Theme, scope
   const parts: string[] = [];
 
   // Base edge first (visible even with animation frozen).
-  parts.push(`  <path class="fi-${scope}-edge" d="${path}"/>`);
+  parts.push(`  <path class="fi-${scope}-edge" d="${path}" style="stroke: ${theme.edge} !important; fill: none !important; stroke-width: 1.5 !important"/>`);
   if (direction !== 'none') {
     const backward = direction === 'backward' ? ` fi-${scope}-flow-sky-b fi-${scope}-flow-emerald-b fi-${scope}-flow-amber-b fi-${scope}-flow-rose-b` : '';
-    parts.push(`  <path class="fi-${scope}-flow-${color}${backward}" d="${path}"/>`);
+    parts.push(`  <path class="fi-${scope}-flow-${color}${backward}" d="${path}" style="stroke: ${theme.flows[color]} !important; fill: none !important; stroke-width: 2 !important; stroke-dasharray: 5 11 !important"/>`);
   }
 
   if (edge.label) {
     const mid = pathMidpoint(path);
     parts.push(
-      `  <text x="${round(mid.x)}" y="${round(mid.y) - 8}" text-anchor="middle" style="font: 10px ui-monospace, SFMono-Regular, Menlo, monospace" fill="${theme.flows[color]}">${escapeXml(edge.label)}</text>`,
+      `  <text x="${round(mid.x)}" y="${round(mid.y) - 8}" text-anchor="middle" style="font: 10px ui-monospace, SFMono-Regular, Menlo, monospace !important; fill: ${theme.flows[color]} !important" fill="${theme.flows[color]}">${escapeXml(edge.label)}</text>`,
     );
   }
 
@@ -159,7 +159,7 @@ function renderEdge(edge: FlowEdge, boxes: Map<string, Box>, theme: Theme, scope
     // path scoped to this element. Note offset-path uses the path's own
     // coordinate space relative to the element position, so the circle is
     // placed at the origin and the path translates absolutely.
-    parts.push(`  <circle class="fi-${scope}-packet" r="3.5" fill="${theme.packet}" style="offset-path: path('${path}')"/>`);
+    parts.push(`  <circle class="fi-${scope}-packet" r="3.5" fill="${theme.packet}" style="offset-path: path('${path}'); fill: ${theme.packet} !important"/>`);
   }
 
   return parts.join('\n');
@@ -169,13 +169,13 @@ function renderNode(node: FlowNode, box: Box, theme: Theme, scope: string): stri
   const parts: string[] = [];
   const pulseClass = node.pulse ? ` fi-${scope}-pulse` : '';
   const duration = typeof node.pulse === 'number' ? ` style="animation-duration: ${node.pulse}ms"` : '';
-  parts.push(`  <rect class="fi-${scope}-node${pulseClass}" x="${box.x}" y="${box.y}" width="${box.width}" height="${box.height}" rx="10"${duration}/>`);
+  parts.push(`  <rect class="fi-${scope}-node${pulseClass}" x="${box.x}" y="${box.y}" width="${box.width}" height="${box.height}" rx="10" fill="${theme.nodeFill}" stroke="${theme.nodeStroke}"${duration} style="fill: ${theme.nodeFill} !important; stroke: ${theme.nodeStroke} !important; stroke-width: 1.2 !important"/>`);
   parts.push(
-    `  <text x="${box.x + 20}" y="${box.y + 26}" style="font: 600 13px ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .5px" fill="${theme.nodeText}">${escapeXml(node.label)}</text>`,
+    `  <text x="${box.x + 20}" y="${box.y + 26}" style="font: 600 13px ui-monospace, SFMono-Regular, Menlo, monospace !important; letter-spacing: .5px !important; fill: ${theme.nodeText} !important" fill="${theme.nodeText}">${escapeXml(node.label)}</text>`,
   );
   (node.lines ?? []).forEach((line, index) => {
     parts.push(
-      `  <text x="${box.x + 20}" y="${box.y + 48 + index * 18}" style="font: 11px ui-monospace, SFMono-Regular, Menlo, monospace" fill="${theme.bodyText}">${escapeXml(line)}</text>`,
+      `  <text x="${box.x + 20}" y="${box.y + 48 + index * 18}" style="font: 11px ui-monospace, SFMono-Regular, Menlo, monospace !important; fill: ${theme.bodyText} !important" fill="${theme.bodyText}">${escapeXml(line)}</text>`,
     );
   });
   return parts.join('\n');

@@ -121,26 +121,26 @@ public static class FlowRenderer
     });
 
     private static string RenderBackground(int width, int height, Theme theme, string scope) =>
-        $"  <rect width=\"{width}\" height=\"{height}\" fill=\"{theme.Canvas}\"/>\n" +
-        $"  <rect width=\"{width}\" height=\"{height}\" fill=\"url(#fi-{scope}-dots)\" opacity=\".5\"/>";
+        $"  <rect width=\"{width}\" height=\"{height}\" fill=\"{theme.Canvas}\" style=\"fill:{theme.Canvas} !important\"/>\n" +
+        $"  <rect width=\"{width}\" height=\"{height}\" fill=\"url(#fi-{scope}-dots)\" opacity=\".5\" style=\"fill:url(#fi-{scope}-dots) !important\"/>";
 
     private static string RenderTitle(FlowSpec spec, int width, Theme t)
     {
         var parts = new List<string>
         {
-            $"""  <text x="40" y="46" style="font: 600 20px ui-sans-serif, system-ui, sans-serif" fill="{t.Title}">{Escape(spec.Title)}</text>""",
+            $"""  <text x="40" y="46" style="font: 600 20px ui-sans-serif, system-ui, sans-serif !important; fill: {t.Title} !important" fill="{t.Title}">{Escape(spec.Title)}</text>""",
         };
         if (spec.Subtitle is not null)
         {
-            parts.Add($"""  <text x="40" y="68" style="font: 12px ui-monospace, SFMono-Regular, Menlo, monospace" fill="{t.Subtitle}">{Escape(spec.Subtitle)}</text>""");
+            parts.Add($"""  <text x="40" y="68" style="font: 12px ui-monospace, SFMono-Regular, Menlo, monospace !important; fill: {t.Subtitle} !important" fill="{t.Subtitle}">{Escape(spec.Subtitle)}</text>""");
         }
         if (spec.Chip is not null)
         {
             var chipWidth = Math.Max(200.0, spec.Chip.Length * 6.4 + 40);
             var chipX = width - chipWidth - 40;
             var inv = System.Globalization.CultureInfo.InvariantCulture;
-            parts.Add($"  <rect x=\"{chipX.ToString(inv)}\" y=\"30\" width=\"{chipWidth.ToString(inv)}\" height=\"26\" rx=\"13\" fill=\"none\" stroke=\"{t.ChipStroke}\" stroke-opacity=\".5\"/>");
-            parts.Add($"  <text x=\"{(chipX + chipWidth / 2).ToString(inv)}\" y=\"47\" text-anchor=\"middle\" style=\"font: 10px ui-monospace, SFMono-Regular, Menlo, monospace\" fill=\"{t.ChipStroke}\">{Escape(spec.Chip)}</text>");
+            parts.Add($"  <rect x=\"{chipX.ToString(inv)}\" y=\"30\" width=\"{chipWidth.ToString(inv)}\" height=\"26\" rx=\"13\" fill=\"none\" stroke=\"{t.ChipStroke}\" stroke-opacity=\".5\" style=\"fill: none !important; stroke: {t.ChipStroke} !important; stroke-opacity: .5 !important\"/>");
+            parts.Add($"  <text x=\"{(chipX + chipWidth / 2).ToString(inv)}\" y=\"47\" text-anchor=\"middle\" style=\"font: 10px ui-monospace, SFMono-Regular, Menlo, monospace !important; fill: {t.ChipStroke} !important\" fill=\"{t.ChipStroke}\">{Escape(spec.Chip)}</text>");
         }
         return string.Join("\n", parts);
     }
@@ -150,25 +150,26 @@ public static class FlowRenderer
         var path = ConnectBoxes(boxes[edge.From], boxes[edge.To], edge.Path);
         var color = edge.Color ?? "sky";
         var direction = edge.Direction ?? "forward";
-        var parts = new List<string> { $"  <path class=\"fi-{scope}-edge\" d=\"{path}\"/>" };
+        var parts = new List<string> { $"  <path class=\"fi-{scope}-edge\" d=\"{path}\" style=\"stroke: {t.Edge} !important; fill: none !important; stroke-width: 1.5 !important\"/>" };
 
         if (direction != "none")
         {
             var backward = direction == "backward"
                 ? $" fi-{scope}-flow-sky-b fi-{scope}-flow-emerald-b fi-{scope}-flow-amber-b fi-{scope}-flow-rose-b"
                 : "";
-            parts.Add($"  <path class=\"fi-{scope}-flow-{color}{backward}\" d=\"{path}\"/>");
+            var flowStroke = t.Flow(color);
+            parts.Add($"  <path class=\"fi-{scope}-flow-{color}{backward}\" d=\"{path}\" style=\"stroke: {flowStroke} !important; fill: none !important; stroke-width: 2 !important; stroke-dasharray: 5 11 !important\"/>");
         }
 
         if (edge.Label is not null)
         {
             var mid = PathMidpoint(path);
-            parts.Add($"""  <text x="{(int)Math.Round(mid.X, MidpointRounding.AwayFromZero)}" y="{(int)Math.Round(mid.Y, MidpointRounding.AwayFromZero) - 8}" text-anchor="middle" style="font: 10px ui-monospace, SFMono-Regular, Menlo, monospace" fill="{t.Flow(color)}">{Escape(edge.Label)}</text>""");
+            parts.Add($"""  <text x="{(int)Math.Round(mid.X, MidpointRounding.AwayFromZero)}" y="{(int)Math.Round(mid.Y, MidpointRounding.AwayFromZero) - 8}" text-anchor="middle" style="font: 10px ui-monospace, SFMono-Regular, Menlo, monospace !important; fill: {t.Flow(color)} !important" fill="{t.Flow(color)}">{Escape(edge.Label)}</text>""");
         }
 
         if (edge.Packet && direction != "none")
         {
-            parts.Add($"  <circle class=\"fi-{scope}-packet\" r=\"3.5\" fill=\"{t.Packet}\" style=\"offset-path: path('{path}')\"/>");
+            parts.Add($"  <circle class=\"fi-{scope}-packet\" r=\"3.5\" fill=\"{t.Packet}\" style=\"offset-path: path('{path}'); fill: {t.Packet} !important\"/>");
         }
 
         return string.Join("\n", parts);
@@ -179,12 +180,12 @@ public static class FlowRenderer
         var parts = new List<string>();
         var pulseClass = node.Pulse is { Enabled: true } ? $" fi-{scope}-pulse" : "";
         var duration = node.Pulse is { Enabled: true, DurationMs: not 3000 } p ? $" style=\"animation-duration: {p.DurationMs}ms\"" : "";
-        parts.Add($"  <rect class=\"fi-{scope}-node{pulseClass}\" x=\"{box.X}\" y=\"{box.Y}\" width=\"{box.Width}\" height=\"{box.Height}\" rx=\"10\"{duration}/>");
-        parts.Add($"""  <text x="{box.X + 20}" y="{box.Y + 26}" style="font: 600 13px ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .5px" fill="{t.NodeText}">{Escape(node.Label)}</text>""");
+        parts.Add($"  <rect class=\"fi-{scope}-node{pulseClass}\" x=\"{box.X}\" y=\"{box.Y}\" width=\"{box.Width}\" height=\"{box.Height}\" rx=\"10\" fill=\"{t.NodeFill}\" stroke=\"{t.NodeStroke}\"{duration} style=\"fill: {t.NodeFill} !important; stroke: {t.NodeStroke} !important; stroke-width: 1.2 !important\"/>");
+        parts.Add($"""  <text x="{box.X + 20}" y="{box.Y + 26}" style="font: 600 13px ui-monospace, SFMono-Regular, Menlo, monospace !important; letter-spacing: .5px !important; fill: {t.NodeText} !important" fill="{t.NodeText}">{Escape(node.Label)}</text>""");
         var index = 0;
         foreach (var line in node.Lines ?? [])
         {
-            parts.Add($"""  <text x="{box.X + 20}" y="{box.Y + 48 + index * 18}" style="font: 11px ui-monospace, SFMono-Regular, Menlo, monospace" fill="{t.BodyText}">{Escape(line)}</text>""");
+            parts.Add($"""  <text x="{box.X + 20}" y="{box.Y + 48 + index * 18}" style="font: 11px ui-monospace, SFMono-Regular, Menlo, monospace !important; fill: {t.BodyText} !important" fill="{t.BodyText}">{Escape(line)}</text>""");
             index++;
         }
         return string.Join("\n", parts);

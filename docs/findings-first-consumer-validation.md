@@ -92,6 +92,28 @@ computes each theme's own colors (verified). Documented in
 **Lesson.** *Audit computed styles, not screenshots - and an "is there anything else
 to document?" pass is itself a test rig.*
 
+## F7 - Host CSS could hijack every paint property (found by asking "is it isolated?")
+
+**Symptom.** An adversarial page - global `svg rect { fill: teal !important }`,
+`svg text { font-family: "Comic Sans MS" !important }`, high-specificity brand rules,
+a hijacked keyframe - repainted the entire diagram: teal nodes, orange flows, Comic
+Sans labels. FlowInk's styles lived in a class-based `<style>` block (specificity
+0-1-0), which loses to essentially any host rule, `!important` or not.
+
+**Fix.** Defense in depth, now the renderer's rule: **every paint-critical property
+(fill, stroke, dash pattern, fonts) is set as an inline `style` declaration with
+`!important`** on the element itself - the one construct that outranks even host
+`!important` stylesheet rules. Generated classes survive only to carry animation
+(dash offset, pulses, packets), which host frameworks don't target. A regression
+test pins the guarantee on every element class, and the adversarial page (kept as
+the reference scenario) now computes FlowInk's own colors throughout.
+
+**Honest boundary.** A host that deliberately targets `fi-`-prefixed selectors or
+the animation classes can still fight the diagram - CSS cannot be made sovereign
+against targeted sabotage. What this guarantees is immunity to *generic* app CSS:
+frameworks, resets, preflights, and legacy "brand colors" rulesheets. Styling the
+outer `<svg>` box itself (display, margins) remains the host's legitimate right.
+
 ## F4 - Local NuGet feeds cache by exact version
 
 **Observation.** Replacing an `.nupkg` in a local folder feed without changing the

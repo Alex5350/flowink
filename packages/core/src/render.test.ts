@@ -102,3 +102,18 @@ describe('renderFlow', () => {
     ).toThrow(/duplicate/i);
   });
 });
+
+describe('host-CSS isolation (the css-war guarantee)', () => {
+  it('puts every paint-critical property inline with !important', () => {
+    const svg = renderFlow(demoSpec);
+    // Fills/strokes/fonts must survive host rules like `svg rect { fill: teal !important }`:
+    // only inline !important outranks host !important.
+    const nodeRect = svg.match(/<rect class="fi-dark-node[^>]*>/)![0];
+    expect(nodeRect).toContain('style="fill: #0E1620 !important');
+    expect(nodeRect).toContain('stroke: #22304A !important');
+    const flowPath = svg.match(/<path class="fi-dark-flow-sky"[^>]*>/)![0];
+    expect(flowPath).toContain('stroke: #38BDF8 !important');
+    const label = svg.match(/<text[^>]*>https<\/text>/)![0];
+    expect(label).toContain('!important');
+  });
+});

@@ -34,6 +34,13 @@ new author. Each entry includes the workaround where one exists.
   construction; do not add `<animate>` to rendered files.
 - **Reduced motion freezes animation by design** - never encode meaning in motion
   alone; colors and labels carry it.
+- **Host-CSS isolation is guaranteed against generic app CSS, not targeted sabotage.**
+  All paint properties ride inline `!important` (the only construct that outranks
+  host `!important` rules), so framework resets, preflights, and global
+  `svg rect`-style rules cannot restyle a diagram. A stylesheet that deliberately
+  targets `fi-`-prefixed selectors or the animation classes can still interfere -
+  CSS has no sovereignty mechanism against that; treat it as a bug report against
+  the host page.
 
 ## Tooling and publishing
 
