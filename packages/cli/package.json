@@ -7,7 +7,9 @@
     "flowink": "./dist/cli.js"
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "logo.svg"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json && node bundle.mjs && mv dist/cli.bundle.js dist/cli.js && chmod +x dist/cli.js",

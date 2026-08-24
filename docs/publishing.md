@@ -107,6 +107,25 @@ dotnet nuget push dist/FlowInk.Blazor.*.nupkg --source https://api.nuget.org/v3/
 `prepublishOnly` hooks run build + tests per package - a red suite blocks the
 publish locally too, not just in CI.
 
+## Store presence: icons and package READMEs (done - verify after each version bump)
+
+The npm package page **is the package README** and the NuGet page shows the
+embedded icon - both were wired in one pass and must survive version bumps:
+
+- **npm**: every package ships `README.md` + `logo.svg` (relative reference -
+  self-contained in the tarball, no external dependency). The logo is the
+  FlowInk mark: three nodes joined by animated sky flows - CSS-only animation,
+  SMIL-free, `prefers-reduced-motion` honored (the library dogfooding itself in
+  its own icon). Dry-run check: `npm pack --dry-run | grep -E 'README|logo'`.
+- **NuGet**: both `.csproj` files set `PackageIcon` + pack `docs/icon.png`
+  (256×256, rendered from the SVG) and `PackageReadmeFile` into the `.nupkg`
+  root - the nuget.org page shows the icon *and* the rendered README without
+  any external URL (a `PackageIconUrl` legacy fallback is also set). Pack check:
+  `unzip -l dist/FlowInk.Core.*.nupkg | grep -E 'icon|README'`.
+- **Regenerating the icon**: edit `docs/logo.svg`, render to PNG at 256px (open
+  the SVG in a browser at 256×256 viewport and screenshot), save as
+  `docs/icon.png`. Source of truth is the SVG.
+
 ## What ships (verified by dry-run)
 
 - **@flowink/core**: `dist/` only - 6 files, ~11 kB unpacked; no test files
@@ -115,8 +134,8 @@ publish locally too, not just in CI.
 - **@flowink/angular**: `dist/` - ng-packagr FESM2022 + types + package metadata.
 - **flowink-cli**: `dist/cli.js` - the esbuild bundle with the shebang banner;
   **zero runtime dependencies** declared.
-- **NuGet packages**: `lib/net10.0/*.dll` only; license expression MIT and
-  repository URL in the manifest.
+- **NuGet packages**: `lib/net10.0/*.dll` + `icon.png` + `README.md` at the
+  package root; license expression MIT and repository/project URLs in the manifest.
 
 ## Other distribution channels (analysis)
 
@@ -148,6 +167,7 @@ publish locally too, not just in CI.
 - [ ] Secrets `NPM_TOKEN` + `NUGET_API_KEY` set on the repository
 - [ ] All versions aligned across the six packages + CI tarball name
 - [ ] `npm publish --dry-run --access public` clean in each package; tarball
-      contents reviewed (dist only, no tests)
+      contents reviewed (dist only, no tests; README + logo present)
+- [ ] NuGet pack verified: `unzip -l` shows `icon.png` + `README.md`
 - [ ] Full suites green: `npm test`, `dotnet run --project dotnet/tests/FlowInk.Tests`
 - [ ] Tag pushed; `Publish` workflow green; post-release verification block run

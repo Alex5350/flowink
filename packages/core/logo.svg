@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-label="FlowInk logo">
+  <defs>
+    <pattern id="dots" width="16" height="16" patternUnits="userSpaceOnUse">
+      <circle cx="1.5" cy="1.5" r="1.5" fill="#1B2737"/>
+    </pattern>
+  </defs>
+  <style>
+    .flow { stroke-dasharray: 10 14; animation: dash 1.4s linear infinite; }
+    @keyframes dash { to { stroke-dashoffset: -24; } }
+    @media (prefers-reduced-motion: reduce) { .flow { animation: none; } }
+  </style>
+  <rect width="256" height="256" rx="48" fill="#0B1118"/>
+  <rect width="256" height="256" rx="48" fill="url(#dots)" opacity=".5"/>
+  <circle cx="58" cy="128" r="13" fill="#0E1620" stroke="#22304A" stroke-width="4"/>
+  <circle cx="128" cy="128" r="13" fill="#0E1620" stroke="#38BDF8" stroke-width="4"/>
+  <circle cx="198" cy="128" r="13" fill="#0E1620" stroke="#22304A" stroke-width="4"/>
+  <path d="M71,128 H115" stroke="#38BDF8" stroke-width="6" fill="none"/>
+  <path class="flow" d="M71,128 H115" stroke="#7DD3FC" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <path d="M141,128 H185" stroke="#38BDF8" stroke-width="6" fill="none"/>
+  <path class="flow" d="M141,128 H185" stroke="#7DD3FC" stroke-width="6" fill="none" stroke-linecap="round"/>
+</svg>

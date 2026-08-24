@@ -22,7 +22,9 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "logo.svg"
   ],
   "devDependencies": {
     "ng-packagr": "^21.0.0"

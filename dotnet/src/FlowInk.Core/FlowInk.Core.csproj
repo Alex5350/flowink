@@ -4,4 +4,16 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Version>0.1.2</Version>
   </PropertyGroup>
+  <PropertyGroup>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageIconUrl>https://raw.githubusercontent.com/Alex5350/flowink/main/docs/icon.png</PackageIconUrl>
+    <PackageProjectUrl>https://github.com/Alex5350/flowink</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Alex5350/flowink</RepositoryUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>svg;diagrams;architecture;animation;css</PackageTags>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="../../../docs/icon.png" Pack="true" PackagePath="/" />
+    <None Include="README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
 </Project>
