@@ -40,6 +40,9 @@ FlowInk encodes those lessons as structure:
 
 ## Packages
 
+All packages live in this repository (not yet published to registries - see
+[Setup and usage](#setup-and-usage) for consumption wiring).
+
 | Package | Ecosystem | What you get |
 |---|---|---|
 | [`@flowink/core`](packages/core) | TypeScript | `renderFlow(spec)` - the renderer + types, zero dependencies |
@@ -52,42 +55,156 @@ FlowInk encodes those lessons as structure:
 Demo: [`apps/demo-angular`](apps/demo-angular) compiles the Angular component via
 path mappings and renders a live diagram (verified build + runtime).
 
-## Quick start
+## The spec
+
+A diagram is a JSON document. This is the complete schema - every field, its default,
+and what it does:
+
+**Top level**
+
+| Field | Type | Default | Meaning |
+|---|---|---|---|
+| `title` | string | *required* | Diagram title; also the SVG `<title>` for accessibility |
+| `subtitle` | string | - | Muted line under the title; use it for the color legend |
+| `chip` | string | - | Right-aligned pill with a one-line guarantee |
+| `theme` | `"dark" \| "light"` | `"dark"` | Showcase dark, or a paper light palette |
+| `width` / `height` | number | 1200 / 640 | Canvas pixels |
+| `nodes` | FlowNode[] | *required* | The boxes |
+| `edges` | FlowEdge[] | *required* | The flows |
+
+**FlowNode**
+
+| Field | Type | Default | Meaning |
+|---|---|---|---|
+| `id` | string | *required* | Edge reference target |
+| `label` | string | *required* | Bold first line |
+| `lines` | string[] | `[]` | Detail lines (smaller, muted) |
+| `x`, `y` | number | *required* | Top-left corner, canvas pixels - manual placement is deliberate ([ADR 0003](docs/adr/0003-manual-layout.md)) |
+| `width`, `height` | number | content-derived | Box size; the renderer wraps your longest line |
+| `pulse` | boolean \| number | - | Border "breathing" (`true` = 3s cycle; a number sets milliseconds) |
+
+**FlowEdge**
+
+| Field | Type | Default | Meaning |
+|---|---|---|---|
+| `from`, `to` | string | *required* | Node ids |
+| `color` | `"sky" \| "emerald" \| "amber" \| "rose"` | `"sky"` | Sky = primary path, emerald = auth, amber = integrations, rose = fallback |
+| `label` | string | - | Small colored label at the path midpoint |
+| `direction` | `"forward" \| "backward" \| "none"` | `"forward"` | Dash march direction; `none` = static |
+| `packet` | boolean | - | A dot rides the path (CSS Motion Path) |
+| `path` | string | auto | Manual SVG path data from `from` to `to`, overriding the auto geometry |
+
+Edge geometry is derived from how boxes face each other (straight when aligned, one
+gentle curve when not); provide `path` when you want a deliberate custom route.
+Working example: [`docs/diagrams/architecture.json`](docs/diagrams/architecture.json).
+
+## Setup and usage
+
+### From the repository (packages are not on npm yet)
 
 ```bash
 git clone https://github.com/Alex5350/flowink.git
 cd flowink
 npm install
-npm run build                      # core, react, cli
-npm test                           # TypeScript tests (core + react)
-node packages/cli/dist/cli.js render docs/diagrams/architecture.json -o /tmp/out.svg
-
-# .NET side
-dotnet build dotnet/FlowInk.slnx
-dotnet run --project dotnet/tests/FlowInk.Tests     # parity + no-SMIL + escaping
+npm run build          # @flowink/core, @flowink/react, flowink CLI
+npm test               # TypeScript tests (core + react)
 ```
 
-React:
+Until the packages are published, consume them the way the demo app does -
+**npm workspaces + tsconfig path mappings** (see
+[`apps/demo-angular`](apps/demo-angular/tsconfig.json) for the complete working setup):
+
+```jsonc
+// your app's tsconfig.json
+{
+  "compilerOptions": {
+    "paths": {
+      "@flowink/core": ["../flowink/packages/core/src/index.ts"],
+      "@flowink/react": ["../flowink/packages/react/src/index.ts"]
+    }
+  }
+}
+```
+
+### CLI - the README workflow
+
+```bash
+node packages/cli/dist/cli.js render spec.json          # -> spec.svg
+node packages/cli/dist/cli.js render spec.json -o docs/diagrams/architecture.svg
+```
+
+Commit both the spec and the SVG: the spec is the source, the SVG is the build
+artifact, and diffing the regenerated SVG is your review.
+
+### React / Next.js
 
 ```tsx
-import { FlowDiagram } from '@flowink/react';
+import { FlowDiagram } from '@flowink/react';   // wire per the path-mapping note above
 
-<FlowDiagram spec={mySpec} />
+export function Page() {
+  return <FlowDiagram spec={spec} />;           // pure function of props: RSC/SSR safe
+}
 ```
 
-Angular:
+For static output (build-time, no React needed): `renderFlowToString(spec)`.
+
+### Angular
 
 ```ts
 import { FlowDiagramComponent } from '@flowink/angular';
 
-@Component({ imports: [FlowDiagramComponent], template: `<flowink-diagram [spec]="spec" />` })
+@Component({
+  standalone: true,
+  imports: [FlowDiagramComponent],
+  template: `<flowink-diagram [spec]="spec" />`,
+})
+export class Shell { spec = mySpec; }
 ```
 
-Blazor:
+The component is standalone + OnPush and injects only the core renderer. The demo app
+in [`apps/demo-angular`](apps/demo-angular/src/main.ts) compiles and renders it end to
+end - copy its tsconfig paths and package wiring.
+
+### Blazor / .NET
 
 ```xml
-<FlowDiagram Spec="spec" />   @code { FlowSpec spec = FlowRenderer.ParseSpecJson(json); }
+<FlowDiagram Spec="spec" />
+@code {
+    FlowSpec spec = FlowRenderer.ParseSpecJson(await File.ReadAllTextAsync("diagram.json"));
+}
 ```
+
+`FlowInk.Core` is renderer-only (usable from any .NET code); `FlowInk.Blazor` adds the
+component. Static SSR renders identically to interactive - no JS interop anywhere.
+
+```bash
+dotnet build dotnet/FlowInk.slnx
+dotnet run --project dotnet/tests/FlowInk.Tests   # parity + guarantees suite
+```
+
+### Repository layout
+
+```text
+packages/core/     TypeScript renderer (zero dependencies)
+packages/react/    React component (SSR-safe)
+packages/angular/  Angular standalone component
+packages/cli/      flowink render - the README workflow
+apps/demo-angular/ compiling, runnable consumer proof
+dotnet/src/        FlowInk.Core (C# renderer) + FlowInk.Blazor
+dotnet/tests/      parity suite with the committed golden fixture
+docs/              tutorial, ADRs, diagrams (spec + generated svg)
+```
+
+### Troubleshooting
+
+- **Diagram renders in a browser tab but blank inside an `<img>`/GitHub README** -
+  that is the SMIL trap (see the tutorial, Part 6); FlowInk output cannot trigger it,
+  so if you see it, the file was not FlowInk-rendered. Verify with the tutorial's
+  img-context test page.
+- **A label collides with a line** - nudge node coordinates or supply a manual edge
+  `path`; manual placement means manual collision duty ([ADR 0003](docs/adr/0003-manual-layout.md)).
+- **`npm install` picks up an Angular cache** - `.angular/` is gitignored; if you
+  copied the demo, keep that ignore line.
 
 ## The tutorial
 
