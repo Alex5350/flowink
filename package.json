@@ -8,6 +8,6 @@
   "scripts": {
     "build": "npm run build -w @flowink/core -w @flowink/react -w flowink-cli -w @flowink/angular",
     "test": "npm run test -w @flowink/core -w @flowink/react",
-    "test:dotnet": "dotnet test dotnet/FlowInk.sln"
+    "test:dotnet": "dotnet run --project dotnet/tests/FlowInk.Tests"
   }
 }
