@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1260" height="600" viewBox="0 0 1260 600" role="img" aria-label="CI pipeline - from push to publish. Animated flows: colored dashes move along request paths; node borders breathe.">
+  <title>CI pipeline - from push to publish</title>
+  <defs>
+    <pattern id="fi-dark-dots" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="1" r="1" fill="#1B2737"/>
+    </pattern>
+  </defs>
+  <style>
+    .fi-dark-node { fill: #0E1620; stroke: #22304A; stroke-width: 1.2; }
+    .fi-dark-edge { stroke: #1F2B3D; stroke-width: 1.5; fill: none; }
+    .fi-dark-pulse { animation: fi-dark-pulse 3s ease-in-out infinite; }
+    .fi-dark-flow-sky { stroke: #38BDF8; stroke-width: 2; fill: none; stroke-dasharray: 5 11; animation: fi-dark-dash-sky-f 1.5s linear infinite; }
+    .fi-dark-flow-sky-b { animation-name: fi-dark-dash-sky-b; }
+    .fi-dark-flow-emerald { stroke: #34D399; stroke-width: 2; fill: none; stroke-dasharray: 5 11; animation: fi-dark-dash-emerald-f 1.5s linear infinite; }
+    .fi-dark-flow-emerald-b { animation-name: fi-dark-dash-emerald-b; }
+    .fi-dark-flow-amber { stroke: #F59E0B; stroke-width: 2; fill: none; stroke-dasharray: 5 11; animation: fi-dark-dash-amber-f 1.5s linear infinite; }
+    .fi-dark-flow-amber-b { animation-name: fi-dark-dash-amber-b; }
+    .fi-dark-flow-rose { stroke: #F87171; stroke-width: 2; fill: none; stroke-dasharray: 5 11; animation: fi-dark-dash-rose-f 1.5s linear infinite; }
+    .fi-dark-flow-rose-b { animation-name: fi-dark-dash-rose-b; }
+    .fi-dark-packet { animation: fi-dark-ride 1.5s linear infinite; }
+    @keyframes fi-dark-pulse { 0%, 100% { stroke-opacity: 1; } 50% { stroke-opacity: .5; } }
+    @keyframes fi-dark-ride { from { offset-distance: 0%; } to { offset-distance: 100%; } }
+    @keyframes fi-dark-dash-sky-f { to { stroke-dashoffset: -16; } }
+    @keyframes fi-dark-dash-sky-b { to { stroke-dashoffset: 16; } }
+    @keyframes fi-dark-dash-emerald-f { to { stroke-dashoffset: -16; } }
+    @keyframes fi-dark-dash-emerald-b { to { stroke-dashoffset: 16; } }
+    @keyframes fi-dark-dash-amber-f { to { stroke-dashoffset: -16; } }
+    @keyframes fi-dark-dash-amber-b { to { stroke-dashoffset: 16; } }
+    @keyframes fi-dark-dash-rose-f { to { stroke-dashoffset: -16; } }
+    @keyframes fi-dark-dash-rose-b { to { stroke-dashoffset: 16; } }
+    @media (prefers-reduced-motion: reduce) { .fi-dark-flow-sky, .fi-dark-flow-emerald, .fi-dark-flow-amber, .fi-dark-flow-rose { animation: none; } .fi-dark-pulse, .fi-dark-packet { animation: none; } }
+  </style>
+  <rect width="1260" height="600" fill="#0B1118" style="fill:#0B1118 !important"/>
+  <rect width="1260" height="600" fill="url(#fi-dark-dots)" opacity=".5" style="fill:url(#fi-dark-dots) !important"/>
+  <text x="40" y="46" style="font: 600 20px ui-sans-serif, system-ui, sans-serif !important; fill: #E2E8F0 !important" fill="#E2E8F0">CI pipeline - from push to publish</text>
+  <rect x="924" y="30" width="296" height="26" rx="13" fill="none" stroke="#38BDF8" stroke-opacity=".5" style="fill: none !important; stroke: #38BDF8 !important; stroke-opacity: .5 !important"/>
+  <text x="1072" y="47" text-anchor="middle" style="font: 10px ui-monospace, SFMono-Regular, Menlo, monospace !important; fill: #38BDF8 !important" fill="#38BDF8">sky = green path · rose = a gate said no</text>
+  <path class="fi-dark-edge" d="M200,285 H290" fill="none" stroke="#1F2B3D" stroke-width="1.5" style="stroke: #1F2B3D !important; fill: none !important; stroke-width: 1.5 !important"/>
+  <path class="fi-dark-flow-sky" d="M200,285 H290" fill="none" stroke="#38BDF8" stroke-width="2" style="stroke: #38BDF8 !important; fill: none !important; stroke-width: 2 !important; stroke-dasharray: 5 11 !important"/>
+  <text x="245" y="277" text-anchor="middle" style="font: 10px ui-monospace, SFMono-Regular, Menlo, monospace !important; fill: #38BDF8 !important" fill="#38BDF8">push</text>
+  <path class="fi-dark-edge" d="M450,289 H560" fill="none" stroke="#1F2B3D" stroke-width="1.5" style="stroke: #1F2B3D !important; fill: none !important; stroke-width: 1.5 !important"/>
+  <path class="fi-dark-flow-sky" d="M450,289 H560" fill="none" stroke="#38BDF8" stroke-width="2" style="stroke: #38BDF8 !important; fill: none !important; stroke-width: 2 !important; stroke-dasharray: 5 11 !important"/>
+  <text x="505" y="281" text-anchor="middle" style="font: 10px ui-monospace, SFMono-Regular, Menlo, monospace !important; fill: #38BDF8 !important" fill="#38BDF8">green</text>
+  <circle class="fi-dark-packet" r="3.5" fill="#7DD3FC" style="offset-path: path('M450,289 H560'); fill: #7DD3FC !important"/>
+  <path class="fi-dark-edge" d="M720,289 H820" fill="none" stroke="#1F2B3D" stroke-width="1.5" style="stroke: #1F2B3D !important; fill: none !important; stroke-width: 1.5 !important"/>
+  <path class="fi-dark-flow-sky" d="M720,289 H820" fill="none" stroke="#38BDF8" stroke-width="2" style="stroke: #38BDF8 !important; fill: none !important; stroke-width: 2 !important; stroke-dasharray: 5 11 !important"/>
+  <text x="770" y="281" text-anchor="middle" style="font: 10px ui-monospace, SFMono-Regular, Menlo, monospace !important; fill: #38BDF8 !important" fill="#38BDF8">artifacts</text>
+  <circle class="fi-dark-packet" r="3.5" fill="#7DD3FC" style="offset-path: path('M720,289 H820'); fill: #7DD3FC !important"/>
+  <path class="fi-dark-edge" d="M980,289 H1070" fill="none" stroke="#1F2B3D" stroke-width="1.5" style="stroke: #1F2B3D !important; fill: none !important; stroke-width: 1.5 !important"/>
+  <path class="fi-dark-flow-sky" d="M980,289 H1070" fill="none" stroke="#38BDF8" stroke-width="2" style="stroke: #38BDF8 !important; fill: none !important; stroke-width: 2 !important; stroke-dasharray: 5 11 !important"/>
+  <text x="1025" y="281" text-anchor="middle" style="font: 10px ui-monospace, SFMono-Regular, Menlo, monospace !important; fill: #38BDF8 !important" fill="#38BDF8">verified</text>
+  <circle class="fi-dark-packet" r="3.5" fill="#7DD3FC" style="offset-path: path('M980,289 H1070'); fill: #7DD3FC !important"/>
+  <path class="fi-dark-edge" d="M450,330 C505,330 505,450 560,450" fill="none" stroke="#1F2B3D" stroke-width="1.5" style="stroke: #1F2B3D !important; fill: none !important; stroke-width: 1.5 !important"/>
+  <text x="505" y="382" text-anchor="middle" style="font: 10px ui-monospace, SFMono-Regular, Menlo, monospace !important; fill: #F87171 !important" fill="#F87171">fail</text>
+  <path class="fi-dark-edge" d="M640,340 V440" fill="none" stroke="#1F2B3D" stroke-width="1.5" style="stroke: #1F2B3D !important; fill: none !important; stroke-width: 1.5 !important"/>
+  <path class="fi-dark-edge" d="M720,450 C770,450 770,330 820,330" fill="none" stroke="#1F2B3D" stroke-width="1.5" style="stroke: #1F2B3D !important; fill: none !important; stroke-width: 1.5 !important"/>
+  <text x="770" y="382" text-anchor="middle" style="font: 10px ui-monospace, SFMono-Regular, Menlo, monospace !important; fill: #F87171 !important" fill="#F87171">fail</text>
+  <rect class="fi-dark-node fi-dark-pulse" x="40" y="238" width="160" height="84" rx="10" fill="#0E1620" stroke="#22304A" style="fill: #0E1620 !important; stroke: #22304A !important; stroke-width: 1.2 !important"/>
+  <text x="60" y="264" style="font: 600 13px ui-monospace, SFMono-Regular, Menlo, monospace !important; letter-spacing: .5px !important; fill: #E2E8F0 !important" fill="#E2E8F0">COMMIT</text>
+  <text x="60" y="286" style="font: 11px ui-monospace, SFMono-Regular, Menlo, monospace !important; fill: #94A3B8 !important" fill="#94A3B8">push to main</text>
+  <rect class="fi-dark-node" x="290" y="238" width="160" height="102" rx="10" fill="#0E1620" stroke="#22304A" style="fill: #0E1620 !important; stroke: #22304A !important; stroke-width: 1.2 !important"/>
+  <text x="310" y="264" style="font: 600 13px ui-monospace, SFMono-Regular, Menlo, monospace !important; letter-spacing: .5px !important; fill: #E2E8F0 !important" fill="#E2E8F0">GATES</text>
+  <text x="310" y="286" style="font: 11px ui-monospace, SFMono-Regular, Menlo, monospace !important; fill: #94A3B8 !important" fill="#94A3B8">lint + format</text>
+  <text x="310" y="304" style="font: 11px ui-monospace, SFMono-Regular, Menlo, monospace !important; fill: #94A3B8 !important" fill="#94A3B8">unit + parity</text>
+  <rect class="fi-dark-node fi-dark-pulse" x="560" y="238" width="160" height="102" rx="10" fill="#0E1620" stroke="#22304A" style="fill: #0E1620 !important; stroke: #22304A !important; stroke-width: 1.2 !important"/>
+  <text x="580" y="264" style="font: 600 13px ui-monospace, SFMono-Regular, Menlo, monospace !important; letter-spacing: .5px !important; fill: #E2E8F0 !important" fill="#E2E8F0">BUILD</text>
+  <text x="580" y="286" style="font: 11px ui-monospace, SFMono-Regular, Menlo, monospace !important; fill: #94A3B8 !important" fill="#94A3B8">compile + pack</text>
+  <text x="580" y="304" style="font: 11px ui-monospace, SFMono-Regular, Menlo, monospace !important; fill: #94A3B8 !important" fill="#94A3B8">tarballs + nupkg</text>
+  <rect class="fi-dark-node" x="820" y="238" width="160" height="102" rx="10" fill="#0E1620" stroke="#22304A" style="fill: #0E1620 !important; stroke: #22304A !important; stroke-width: 1.2 !important"/>
+  <text x="840" y="264" style="font: 600 13px ui-monospace, SFMono-Regular, Menlo, monospace !important; letter-spacing: .5px !important; fill: #E2E8F0 !important" fill="#E2E8F0">SECURITY SCAN</text>
+  <text x="840" y="286" style="font: 11px ui-monospace, SFMono-Regular, Menlo, monospace !important; fill: #94A3B8 !important" fill="#94A3B8">smil-free check</text>
+  <text x="840" y="304" style="font: 11px ui-monospace, SFMono-Regular, Menlo, monospace !important; fill: #94A3B8 !important" fill="#94A3B8">injection tests</text>
+  <rect class="fi-dark-node fi-dark-pulse" x="1070" y="238" width="160" height="102" rx="10" fill="#0E1620" stroke="#22304A" style="fill: #0E1620 !important; stroke: #22304A !important; stroke-width: 1.2 !important"/>
+  <text x="1090" y="264" style="font: 600 13px ui-monospace, SFMono-Regular, Menlo, monospace !important; letter-spacing: .5px !important; fill: #E2E8F0 !important" fill="#E2E8F0">PUBLISH</text>
+  <text x="1090" y="286" style="font: 11px ui-monospace, SFMono-Regular, Menlo, monospace !important; fill: #94A3B8 !important" fill="#94A3B8">npm + NuGet</text>
+  <text x="1090" y="304" style="font: 11px ui-monospace, SFMono-Regular, Menlo, monospace !important; fill: #94A3B8 !important" fill="#94A3B8">tag-triggered</text>
+  <rect class="fi-dark-node" x="560" y="440" width="160" height="102" rx="10" fill="#0E1620" stroke="#22304A" style="fill: #0E1620 !important; stroke: #22304A !important; stroke-width: 1.2 !important"/>
+  <text x="580" y="466" style="font: 600 13px ui-monospace, SFMono-Regular, Menlo, monospace !important; letter-spacing: .5px !important; fill: #E2E8F0 !important" fill="#E2E8F0">REJECTED</text>
+  <text x="580" y="488" style="font: 11px ui-monospace, SFMono-Regular, Menlo, monospace !important; fill: #94A3B8 !important" fill="#94A3B8">red build</text>
+  <text x="580" y="506" style="font: 11px ui-monospace, SFMono-Regular, Menlo, monospace !important; fill: #94A3B8 !important" fill="#94A3B8">nothing ships</text>
+</svg>

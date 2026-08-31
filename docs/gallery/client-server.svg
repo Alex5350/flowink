@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700" role="img" aria-label="Client-server - the path of one request. Animated flows: colored dashes move along request paths; node borders breathe.">
+  <title>Client-server - the path of one request</title>
+  <defs>
+    <pattern id="fi-dark-dots" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="1" r="1" fill="#1B2737"/>
+    </pattern>
+  </defs>
+  <style>
+    .fi-dark-node { fill: #0E1620; stroke: #22304A; stroke-width: 1.2; }
+    .fi-dark-edge { stroke: #1F2B3D; stroke-width: 1.5; fill: none; }
+    .fi-dark-pulse { animation: fi-dark-pulse 3s ease-in-out infinite; }
+    .fi-dark-flow-sky { stroke: #38BDF8; stroke-width: 2; fill: none; stroke-dasharray: 5 11; animation: fi-dark-dash-sky-f 1.5s linear infinite; }
+    .fi-dark-flow-sky-b { animation-name: fi-dark-dash-sky-b; }
+    .fi-dark-flow-emerald { stroke: #34D399; stroke-width: 2; fill: none; stroke-dasharray: 5 11; animation: fi-dark-dash-emerald-f 1.5s linear infinite; }
+    .fi-dark-flow-emerald-b { animation-name: fi-dark-dash-emerald-b; }
+    .fi-dark-flow-amber { stroke: #F59E0B; stroke-width: 2; fill: none; stroke-dasharray: 5 11; animation: fi-dark-dash-amber-f 1.5s linear infinite; }
+    .fi-dark-flow-amber-b { animation-name: fi-dark-dash-amber-b; }
+    .fi-dark-flow-rose { stroke: #F87171; stroke-width: 2; fill: none; stroke-dasharray: 5 11; animation: fi-dark-dash-rose-f 1.5s linear infinite; }
+    .fi-dark-flow-rose-b { animation-name: fi-dark-dash-rose-b; }
+    .fi-dark-packet { animation: fi-dark-ride 1.5s linear infinite; }
+    @keyframes fi-dark-pulse { 0%, 100% { stroke-opacity: 1; } 50% { stroke-opacity: .5; } }
+    @keyframes fi-dark-ride { from { offset-distance: 0%; } to { offset-distance: 100%; } }
+    @keyframes fi-dark-dash-sky-f { to { stroke-dashoffset: -16; } }
+    @keyframes fi-dark-dash-sky-b { to { stroke-dashoffset: 16; } }
+    @keyframes fi-dark-dash-emerald-f { to { stroke-dashoffset: -16; } }
+    @keyframes fi-dark-dash-emerald-b { to { stroke-dashoffset: 16; } }
+    @keyframes fi-dark-dash-amber-f { to { stroke-dashoffset: -16; } }
+    @keyframes fi-dark-dash-amber-b { to { stroke-dashoffset: 16; } }
+    @keyframes fi-dark-dash-rose-f { to { stroke-dashoffset: -16; } }
+    @keyframes fi-dark-dash-rose-b { to { stroke-dashoffset: 16; } }
+    @media (prefers-reduced-motion: reduce) { .fi-dark-flow-sky, .fi-dark-flow-emerald, .fi-dark-flow-amber, .fi-dark-flow-rose { animation: none; } .fi-dark-pulse, .fi-dark-packet { animation: none; } }
+  </style>
+  <rect width="1200" height="700" fill="#0B1118" style="fill:#0B1118 !important"/>
+  <rect width="1200" height="700" fill="url(#fi-dark-dots)" opacity=".5" style="fill:url(#fi-dark-dots) !important"/>
+  <text x="40" y="46" style="font: 600 20px ui-sans-serif, system-ui, sans-serif !important; fill: #E2E8F0 !important" fill="#E2E8F0">Client-server - the path of one request</text>
+  <rect x="716.8" y="30" width="443.20000000000005" height="26" rx="13" fill="none" stroke="#38BDF8" stroke-opacity=".5" style="fill: none !important; stroke: #38BDF8 !important; stroke-opacity: .5 !important"/>
+  <text x="938.4" y="47" text-anchor="middle" style="font: 10px ui-monospace, SFMono-Regular, Menlo, monospace !important; fill: #38BDF8 !important" fill="#38BDF8">sky = request · emerald = response · amber = data · rose = miss</text>
+  <path class="fi-dark-edge" d="M175,164 C175,232 120,232 120,300" fill="none" stroke="#1F2B3D" stroke-width="1.5" style="stroke: #1F2B3D !important; fill: none !important; stroke-width: 1.5 !important"/>
+  <path class="fi-dark-flow-sky fi-dark-flow-sky-b fi-dark-flow-emerald-b fi-dark-flow-amber-b fi-dark-flow-rose-b" d="M175,164 C175,232 120,232 120,300" fill="none" stroke="#38BDF8" stroke-width="2" style="stroke: #38BDF8 !important; fill: none !important; stroke-width: 2 !important; stroke-dasharray: 5 11 !important"/>
+  <text x="148" y="224" text-anchor="middle" style="font: 10px ui-monospace, SFMono-Regular, Menlo, monospace !important; fill: #38BDF8 !important" fill="#38BDF8">assets</text>
+  <path class="fi-dark-edge" d="M290,164 C290,232 410,232 410,300" fill="none" stroke="#1F2B3D" stroke-width="1.5" style="stroke: #1F2B3D !important; fill: none !important; stroke-width: 1.5 !important"/>
+  <path class="fi-dark-flow-sky" d="M290,164 C290,232 410,232 410,300" fill="none" stroke="#38BDF8" stroke-width="2" style="stroke: #38BDF8 !important; fill: none !important; stroke-width: 2 !important; stroke-dasharray: 5 11 !important"/>
+  <text x="350" y="224" text-anchor="middle" style="font: 10px ui-monospace, SFMono-Regular, Menlo, monospace !important; fill: #38BDF8 !important" fill="#38BDF8">requests</text>
+  <circle class="fi-dark-packet" r="3.5" fill="#7DD3FC" style="offset-path: path('M290,164 C290,232 410,232 410,300'); fill: #7DD3FC !important"/>
+  <path class="fi-dark-edge" d="M890,154 C890,232 780,232 780,310" fill="none" stroke="#1F2B3D" stroke-width="1.5" style="stroke: #1F2B3D !important; fill: none !important; stroke-width: 1.5 !important"/>
+  <path class="fi-dark-flow-sky" d="M890,154 C890,232 780,232 780,310" fill="none" stroke="#38BDF8" stroke-width="2" style="stroke: #38BDF8 !important; fill: none !important; stroke-width: 2 !important; stroke-dasharray: 5 11 !important"/>
+  <text x="835" y="224" text-anchor="middle" style="font: 10px ui-monospace, SFMono-Regular, Menlo, monospace !important; fill: #38BDF8 !important" fill="#38BDF8">requests</text>
+  <circle class="fi-dark-packet" r="3.5" fill="#7DD3FC" style="offset-path: path('M890,154 C890,232 780,232 780,310'); fill: #7DD3FC !important"/>
+  <path class="fi-dark-edge" d="M490,347 H620" fill="none" stroke="#1F2B3D" stroke-width="1.5" style="stroke: #1F2B3D !important; fill: none !important; stroke-width: 1.5 !important"/>
+  <path class="fi-dark-flow-sky" d="M490,347 H620" fill="none" stroke="#38BDF8" stroke-width="2" style="stroke: #38BDF8 !important; fill: none !important; stroke-width: 2 !important; stroke-dasharray: 5 11 !important"/>
+  <text x="555" y="339" text-anchor="middle" style="font: 10px ui-monospace, SFMono-Regular, Menlo, monospace !important; fill: #38BDF8 !important" fill="#38BDF8">route</text>
+  <path class="fi-dark-edge" d="M620,330 C465,330 465,140 310,140" fill="none" stroke="#1F2B3D" stroke-width="1.5" style="stroke: #1F2B3D !important; fill: none !important; stroke-width: 1.5 !important"/>
+  <path class="fi-dark-flow-emerald" d="M620,330 C465,330 465,140 310,140" fill="none" stroke="#34D399" stroke-width="2" style="stroke: #34D399 !important; fill: none !important; stroke-width: 2 !important; stroke-dasharray: 5 11 !important"/>
+  <text x="465" y="227" text-anchor="middle" style="font: 10px ui-monospace, SFMono-Regular, Menlo, monospace !important; fill: #34D399 !important" fill="#34D399">response</text>
+  <circle class="fi-dark-packet" r="3.5" fill="#7DD3FC" style="offset-path: path('M620,330 C465,330 465,140 310,140'); fill: #7DD3FC !important"/>
+  <path class="fi-dark-edge" d="M780,347 H910" fill="none" stroke="#1F2B3D" stroke-width="1.5" style="stroke: #1F2B3D !important; fill: none !important; stroke-width: 1.5 !important"/>
+  <path class="fi-dark-flow-amber" d="M780,347 H910" fill="none" stroke="#F59E0B" stroke-width="2" style="stroke: #F59E0B !important; fill: none !important; stroke-width: 2 !important; stroke-dasharray: 5 11 !important"/>
+  <text x="845" y="339" text-anchor="middle" style="font: 10px ui-monospace, SFMono-Regular, Menlo, monospace !important; fill: #F59E0B !important" fill="#F59E0B">read</text>
+  <path class="fi-dark-edge" d="M660,402 C660,471 680,471 680,540" fill="none" stroke="#1F2B3D" stroke-width="1.5" style="stroke: #1F2B3D !important; fill: none !important; stroke-width: 1.5 !important"/>
+  <path class="fi-dark-flow-amber" d="M660,402 C660,471 680,471 680,540" fill="none" stroke="#F59E0B" stroke-width="2" style="stroke: #F59E0B !important; fill: none !important; stroke-width: 2 !important; stroke-dasharray: 5 11 !important"/>
+  <text x="670" y="463" text-anchor="middle" style="font: 10px ui-monospace, SFMono-Regular, Menlo, monospace !important; fill: #F59E0B !important" fill="#F59E0B">offload</text>
+  <path class="fi-dark-edge" d="M780,392 C845,392 845,550 910,550" fill="none" stroke="#1F2B3D" stroke-width="1.5" style="stroke: #1F2B3D !important; fill: none !important; stroke-width: 1.5 !important"/>
+  <path class="fi-dark-flow-amber" d="M780,392 C845,392 845,550 910,550" fill="none" stroke="#F59E0B" stroke-width="2" style="stroke: #F59E0B !important; fill: none !important; stroke-width: 2 !important; stroke-dasharray: 5 11 !important"/>
+  <text x="845" y="463" text-anchor="middle" style="font: 10px ui-monospace, SFMono-Regular, Menlo, monospace !important; fill: #F59E0B !important" fill="#F59E0B">query</text>
+  <circle class="fi-dark-packet" r="3.5" fill="#7DD3FC" style="offset-path: path('M780,392 C845,392 845,550 910,550'); fill: #7DD3FC !important"/>
+  <path class="fi-dark-edge" d="M940,384 C940,462 960,462 960,540" fill="none" stroke="#1F2B3D" stroke-width="1.5" style="stroke: #1F2B3D !important; fill: none !important; stroke-width: 1.5 !important"/>
+  <path class="fi-dark-flow-rose" d="M940,384 C940,462 960,462 960,540" fill="none" stroke="#F87171" stroke-width="2" style="stroke: #F87171 !important; fill: none !important; stroke-width: 2 !important; stroke-dasharray: 5 11 !important"/>
+  <text x="950" y="454" text-anchor="middle" style="font: 10px ui-monospace, SFMono-Regular, Menlo, monospace !important; fill: #F87171 !important" fill="#F87171">on miss</text>
+  <rect class="fi-dark-node" x="150" y="80" width="160" height="84" rx="10" fill="#0E1620" stroke="#22304A" style="fill: #0E1620 !important; stroke: #22304A !important; stroke-width: 1.2 !important"/>
+  <text x="170" y="106" style="font: 600 13px ui-monospace, SFMono-Regular, Menlo, monospace !important; letter-spacing: .5px !important; fill: #E2E8F0 !important" fill="#E2E8F0">BROWSER</text>
+  <text x="170" y="128" style="font: 11px ui-monospace, SFMono-Regular, Menlo, monospace !important; fill: #94A3B8 !important" fill="#94A3B8">HTML + JS</text>
+  <rect class="fi-dark-node" x="890" y="80" width="160" height="84" rx="10" fill="#0E1620" stroke="#22304A" style="fill: #0E1620 !important; stroke: #22304A !important; stroke-width: 1.2 !important"/>
+  <text x="910" y="106" style="font: 600 13px ui-monospace, SFMono-Regular, Menlo, monospace !important; letter-spacing: .5px !important; fill: #E2E8F0 !important" fill="#E2E8F0">MOBILE APP</text>
+  <text x="910" y="128" style="font: 11px ui-monospace, SFMono-Regular, Menlo, monospace !important; fill: #94A3B8 !important" fill="#94A3B8">shared API</text>
+  <rect class="fi-dark-node" x="40" y="300" width="160" height="84" rx="10" fill="#0E1620" stroke="#22304A" style="fill: #0E1620 !important; stroke: #22304A !important; stroke-width: 1.2 !important"/>
+  <text x="60" y="326" style="font: 600 13px ui-monospace, SFMono-Regular, Menlo, monospace !important; letter-spacing: .5px !important; fill: #E2E8F0 !important" fill="#E2E8F0">CDN</text>
+  <text x="60" y="348" style="font: 11px ui-monospace, SFMono-Regular, Menlo, monospace !important; fill: #94A3B8 !important" fill="#94A3B8">static assets</text>
+  <rect class="fi-dark-node" x="330" y="300" width="160" height="84" rx="10" fill="#0E1620" stroke="#22304A" style="fill: #0E1620 !important; stroke: #22304A !important; stroke-width: 1.2 !important"/>
+  <text x="350" y="326" style="font: 600 13px ui-monospace, SFMono-Regular, Menlo, monospace !important; letter-spacing: .5px !important; fill: #E2E8F0 !important" fill="#E2E8F0">LOAD BALANCER</text>
+  <text x="350" y="348" style="font: 11px ui-monospace, SFMono-Regular, Menlo, monospace !important; fill: #94A3B8 !important" fill="#94A3B8">TLS + routing</text>
+  <rect class="fi-dark-node fi-dark-pulse" x="620" y="300" width="160" height="102" rx="10" fill="#0E1620" stroke="#22304A" style="fill: #0E1620 !important; stroke: #22304A !important; stroke-width: 1.2 !important"/>
+  <text x="640" y="326" style="font: 600 13px ui-monospace, SFMono-Regular, Menlo, monospace !important; letter-spacing: .5px !important; fill: #E2E8F0 !important" fill="#E2E8F0">APP SERVERS</text>
+  <text x="640" y="348" style="font: 11px ui-monospace, SFMono-Regular, Menlo, monospace !important; fill: #94A3B8 !important" fill="#94A3B8">stateless</text>
+  <text x="640" y="366" style="font: 11px ui-monospace, SFMono-Regular, Menlo, monospace !important; fill: #94A3B8 !important" fill="#94A3B8">request handlers</text>
+  <rect class="fi-dark-node" x="910" y="300" width="160" height="84" rx="10" fill="#0E1620" stroke="#22304A" style="fill: #0E1620 !important; stroke: #22304A !important; stroke-width: 1.2 !important"/>
+  <text x="930" y="326" style="font: 600 13px ui-monospace, SFMono-Regular, Menlo, monospace !important; letter-spacing: .5px !important; fill: #E2E8F0 !important" fill="#E2E8F0">CACHE</text>
+  <text x="930" y="348" style="font: 11px ui-monospace, SFMono-Regular, Menlo, monospace !important; fill: #94A3B8 !important" fill="#94A3B8">hot reads</text>
+  <rect class="fi-dark-node" x="620" y="540" width="160" height="84" rx="10" fill="#0E1620" stroke="#22304A" style="fill: #0E1620 !important; stroke: #22304A !important; stroke-width: 1.2 !important"/>
+  <text x="640" y="566" style="font: 600 13px ui-monospace, SFMono-Regular, Menlo, monospace !important; letter-spacing: .5px !important; fill: #E2E8F0 !important" fill="#E2E8F0">QUEUE</text>
+  <text x="640" y="588" style="font: 11px ui-monospace, SFMono-Regular, Menlo, monospace !important; fill: #94A3B8 !important" fill="#94A3B8">async jobs</text>
+  <rect class="fi-dark-node fi-dark-pulse" x="910" y="540" width="163" height="84" rx="10" fill="#0E1620" stroke="#22304A" style="fill: #0E1620 !important; stroke: #22304A !important; stroke-width: 1.2 !important"/>
+  <text x="930" y="566" style="font: 600 13px ui-monospace, SFMono-Regular, Menlo, monospace !important; letter-spacing: .5px !important; fill: #E2E8F0 !important" fill="#E2E8F0">DATABASE</text>
+  <text x="930" y="588" style="font: 11px ui-monospace, SFMono-Regular, Menlo, monospace !important; fill: #94A3B8 !important" fill="#94A3B8">primary + replica</text>
+</svg>

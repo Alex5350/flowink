@@ -1,0 +1,23 @@
+{
+  "title": "CI pipeline - from push to publish",
+  "chip": "sky = green path · rose = a gate said no",
+  "width": 1260,
+  "height": 600,
+  "nodes": [
+    { "id": "commit", "label": "COMMIT", "lines": ["push to main"], "x": 40, "y": 238, "pulse": true },
+    { "id": "gates", "label": "GATES", "lines": ["lint + format", "unit + parity"], "x": 290, "y": 238 },
+    { "id": "build", "label": "BUILD", "lines": ["compile + pack", "tarballs + nupkg"], "x": 560, "y": 238, "pulse": true },
+    { "id": "scan", "label": "SECURITY SCAN", "lines": ["smil-free check", "injection tests"], "x": 820, "y": 238 },
+    { "id": "publish", "label": "PUBLISH", "lines": ["npm + NuGet", "tag-triggered"], "x": 1070, "y": 238, "pulse": true },
+    { "id": "rejected", "label": "REJECTED", "lines": ["red build", "nothing ships"], "x": 560, "y": 440 }
+  ],
+  "edges": [
+    { "from": "commit", "to": "gates", "label": "push", "color": "sky" },
+    { "from": "gates", "to": "build", "label": "green", "color": "sky", "packet": true },
+    { "from": "build", "to": "scan", "label": "artifacts", "color": "sky", "packet": true },
+    { "from": "scan", "to": "publish", "label": "verified", "color": "sky", "packet": true },
+    { "from": "gates", "to": "rejected", "label": "fail", "color": "rose", "direction": "none" },
+    { "from": "build", "to": "rejected", "color": "rose", "direction": "none" },
+    { "from": "scan", "to": "rejected", "label": "fail", "color": "rose", "direction": "none" }
+  ]
+}

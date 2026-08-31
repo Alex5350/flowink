@@ -1,0 +1,27 @@
+{
+  "title": "Client-server - the path of one request",
+  "chip": "sky = request · emerald = response · amber = data · rose = miss",
+  "width": 1200,
+  "height": 700,
+  "nodes": [
+    { "id": "browser", "label": "BROWSER", "lines": ["HTML + JS"], "x": 150, "y": 80 },
+    { "id": "mobile", "label": "MOBILE APP", "lines": ["shared API"], "x": 890, "y": 80 },
+    { "id": "cdn", "label": "CDN", "lines": ["static assets"], "x": 40, "y": 300 },
+    { "id": "lb", "label": "LOAD BALANCER", "lines": ["TLS + routing"], "x": 330, "y": 300 },
+    { "id": "app", "label": "APP SERVERS", "lines": ["stateless", "request handlers"], "x": 620, "y": 300, "pulse": true },
+    { "id": "cache", "label": "CACHE", "lines": ["hot reads"], "x": 910, "y": 300 },
+    { "id": "queue", "label": "QUEUE", "lines": ["async jobs"], "x": 620, "y": 540 },
+    { "id": "db", "label": "DATABASE", "lines": ["primary + replica"], "x": 910, "y": 540, "pulse": true }
+  ],
+  "edges": [
+    { "from": "browser", "to": "cdn", "label": "assets", "color": "sky", "direction": "backward", "path": "M175,164 C175,232 120,232 120,300" },
+    { "from": "browser", "to": "lb", "label": "requests", "color": "sky", "packet": true, "path": "M290,164 C290,232 410,232 410,300" },
+    { "from": "mobile", "to": "app", "label": "requests", "color": "sky", "packet": true, "path": "M890,154 C890,232 780,232 780,310" },
+    { "from": "lb", "to": "app", "label": "route", "color": "sky" },
+    { "from": "app", "to": "browser", "label": "response", "color": "emerald", "packet": true, "path": "M620,330 C465,330 465,140 310,140" },
+    { "from": "app", "to": "cache", "label": "read", "color": "amber" },
+    { "from": "app", "to": "queue", "label": "offload", "color": "amber", "path": "M660,402 C660,471 680,471 680,540" },
+    { "from": "app", "to": "db", "label": "query", "color": "amber", "packet": true },
+    { "from": "cache", "to": "db", "label": "on miss", "color": "rose", "path": "M940,384 C940,462 960,462 960,540" }
+  ]
+}
